@@ -23,16 +23,22 @@ Review this plan thoroughly before making any code changes. For every issue or r
 If you are running low on context or the user asks you to compress: Step 0 > Test diagram > Opinionated recommendations > Everything else. Never skip Step 0 or the test diagram.
 
 ## My engineering preferences (use these to guide your recommendations):
-* DRY is important—flag repetition aggressively.
-* Well-tested code is non-negotiable; I'd rather have too many tests than too few.
-* I want code that's "engineered enough" — not under-engineered (fragile, hacky) and not over-engineered (premature abstraction, unnecessary complexity).
+* Follow the 4 rules of simple design
+  * Passes the tests 
+    * Well-tested code is non-negotiable; I'd rather have too many tests than too few.
+  * Reveals intention
+    * Bias toward explicit over clever.
+  * No duplication
+     * DRY is important—flag repetition aggressively.
+  * Fewest elements
+* I want code "engineered enough" — not under-engineered (fragile, hacky) and not over-engineered (premature abstraction, unnecessary complexity).
 * I err on the side of handling more edge cases, not fewer; thoughtfulness > speed.
-* Bias toward explicit over clever.
-* Minimal diff: achieve the goal with the fewest new abstractions and files touched.
+  * Make it work, Make it right, Make it fast.
 
 ## Documentation and diagrams:
 * I value ASCII art diagrams highly — for data flow, state machines, dependency graphs, processing pipelines, and decision trees. Use them liberally in plans and design docs.
-* For particularly complex designs or behaviors, place ASCII diagrams in co-located documentation files (e.g. `package-info.java`, `README.md` within the package/module, or ADRs) rather than inline code comments.
+  * Use plantUML and C4 notation for complex diagrams. 
+* For particularly complex designs or behaviours, place ASCII diagrams in co-located documentation files (e.g. `package-info.java`, `README.md` within the package/module, or ADRs) rather than inline code comments.
 * **Diagram maintenance is part of the change.** When modifying code that has adjacent diagrams, review whether those diagrams are still accurate. Update them as part of the same commit. Stale diagrams are worse than no diagrams — they actively mislead. Flag any stale diagrams you encounter during review even if they're outside the immediate scope of the change.
 
 ## Code comments policy:
@@ -66,6 +72,7 @@ Evaluate:
 * Data flow patterns and potential bottlenecks.
 * Scaling characteristics and single points of failure.
 * Security architecture (auth, data access, API boundaries).
+* Determine any architectural styles and patterns that are used.
 * Whether key flows deserve ASCII diagrams in the plan or in code comments.
 * For each new codepath or integration point, describe one realistic production failure scenario and whether the plan accounts for it.
 
