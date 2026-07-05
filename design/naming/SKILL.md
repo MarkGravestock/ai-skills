@@ -5,11 +5,12 @@ description: Deep guidance on naming functions, types, and variables - optimize 
 
 # Naming
 
-Adam Tornhill's naming guide, adapted as a skill. Naming is a design activity, not a
-labelling one: names are a cognitive compression mechanism — the stronger the names, the
-more a reader (human or agent) can hold in working memory while reasoning about the code.
-Identifier quality measurably affects debugging time and LLM code comprehension, so this is
-not aesthetics.
+Adapted from Adam Tornhill's
+[*"An opinionated (and mainly correct) guide to naming things"*](https://adamtornhill.substack.com/p/an-opinionated-and-mainly-correct)
+(CodeScene / Substack). Naming is a design activity, not a labelling one: names are a
+cognitive compression mechanism — the stronger the names, the more a reader (human or agent)
+can hold in working memory while reasoning about the code. Identifier quality measurably
+affects debugging time and LLM code comprehension, so this is not aesthetics.
 
 ## How this skill composes
 
@@ -142,7 +143,7 @@ of these; the reason they're banned is this attractor effect, not mere ugliness.
 
 ## Further reading
 
-- [Naming Things: The Hardest Problem](https://codescene.com/engineering-blog/naming-things-the-hardest-problem) — Adam Tornhill (source article for this skill)
+- [An opinionated (and mainly correct) guide to naming things](https://adamtornhill.substack.com/p/an-opinionated-and-mainly-correct) — Adam Tornhill (source article for this skill)
 - [Structure and Interpretation of Computer Programs](https://mitp-content-server.mit.edu/books/content/sectbyfn/books_pres_0/6515/sicp.zip/index.html) — wishful thinking as a design tool
 - [Tell, Don't Ask](https://martinfowler.com/bliki/TellDontAsk.html) — Martin Fowler
 - [Two Hard Things](https://martinfowler.com/bliki/TwoHardThings.html) — Martin Fowler, on naming and cache invalidation
