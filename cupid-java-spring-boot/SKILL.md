@@ -1,50 +1,22 @@
-# From SOLID to CUPID: Design Principles for Production Java/Spring Boot
+---
+name: cupid-java-spring-boot
+description: Practical CUPID implementation guidance for Java and Spring Boot — concrete idioms, libraries, and production patterns for Composable, Unix philosophy, Predictable, Idiomatic, Domain-based code. Use when reviewing, designing, or refactoring Java/Spring Boot services against CUPID, especially cloud-native deployment concerns (resilience, idempotency, observability, module boundaries). Composes with the cupid-properties skill, which defines the properties themselves.
+---
 
-> Translated from Dan North's CUPID framework and the article
-> *"From SOLID to CUPID: Design Principles That Survive Production in Cloud-Native .NET"*
-> into Java/Spring Boot idioms and patterns.
+# CUPID for Java / Spring Boot
+
+Stack-specific implementation guidance. **This skill composes with `cupid-properties`** — the
+generic skill defines the five properties, the properties-vs-principles philosophy, the
+caller-combination test, the SOLID critique, the scorecard, and the review lens. Load it first
+(read `../cupid-properties/SKILL.md` if it is not already in context). This file only says what
+each property looks like *in Java and Spring Boot*, with emphasis on what survives production:
+retry storms, unbounded queues, duplicate processing, missing observability, fragile startup.
 
 ---
 
-## Overview
+## C — Composable
 
-**SOLID** defines rules for internal code organisation. **CUPID** defines properties that running systems should exhibit — especially under the conditions of cloud-native deployment: distributed failure, sustained load, and independent deployability.
-
-The key philosophical shift: SOLID principles are **binary** (you comply or you violate). CUPID properties are **directional** — code is simply closer to or further from the centre. Any movement toward a CUPID property improves the code, regardless of where it starts.
-
-Use **SOLID within a service boundary** and **CUPID across service boundaries and for deployment readiness**.
-
----
-
-## Why CUPID? — SOLID's Production Blindspots
-
-| SOLID Principle | Production Gap |
-|---|---|
-| **S** — Single Responsibility | Ambiguous. "One reason to change" drives artificial seams that scatter related code. |
-| **O** — Open/Closed | 1990s constraint. VCS + safe refactoring tools eliminated the need to treat code as an immutable asset. |
-| **L** — Liskov Substitution | Presupposes inheritance hierarchies; composition is the modern alternative. |
-| **I** — Interface Segregation | Remediation for already-oversized interfaces. Prevents symptoms, not causes. |
-| **D** — Dependency Inversion | Universally applied, produces abstraction forests no one can navigate; interfaces with a single implementation add cost, not value. |
-
-None of SOLID's principles address what kills production systems: retry storms, unbounded queues, duplicate processing, missing observability, fragile startup sequences.
-
----
-
-## The CUPID Properties
-
-### C — Composable: *Plays Well With Others*
-
-Software that is easy to use gets reused. Composability is about how easily a component integrates with, and can be assembled alongside, other components.
-
-**Three sub-properties:**
-
-| Sub-property | What it means |
-|---|---|
-| Small surface area | A narrow, opinionated API. Developers should be able to assess fit within two minutes and exit early if it does not fit. |
-| Intention-revealing | Names and structure communicate purpose without requiring implementation reads. |
-| Minimal dependencies | Avoid the "gorilla problem" — the user wanted a banana but got a gorilla holding the banana and the entire jungle. |
-
-**Minimal dependency surface — before and after:**
+**Minimal dependency surface — keep domain types framework-free:**
 
 ```java
 // Smell: shared "core" library declares a Spring Data dependency.
@@ -63,7 +35,7 @@ public record Money(BigDecimal amount, Currency currency) {
 }
 ```
 
-**Domain-scoped `@Configuration` — before and after:**
+**Domain-scoped `@Configuration` — no God config:**
 
 ```java
 // Smell: one God config registers everything
@@ -90,31 +62,21 @@ class FraudConfig {
 }
 ```
 
-Each config can be tested, replaced, or conditionally loaded independently. A new team member reading `PaymentsConfig` sees only payments concerns.
+Each config can be tested, replaced, or conditionally loaded independently. A new team member
+reading `PaymentsConfig` sees only payments concerns.
 
 ---
 
-### U — Unix Philosophy: *Does One Thing Well*
+## U — Unix philosophy
 
-A component should have a single, well-defined **purpose from the outside** — from the perspective of the user of the component, not from the perspective of its internal organisation.
+Apply the **caller-combination test** from the generic skill: split only where callers
+genuinely want the pieces in different combinations.
 
-**Critical distinction from SRP:**
-
-| | Unix Philosophy (CUPID) | Single Responsibility (SOLID) |
-|---|---|---|
-| Perspective | Outside-in — what does callers need from me? | Inside-out — how many reasons can this change? |
-| Split criterion | Callers need the parts in different combinations | Internal change vectors differ |
-| Risk | Under-splitting loses focus | Over-splitting creates artificial seams |
-
-#### The report example — and when it cuts both ways
-
-SRP tells you to separate `ReportContentService` from `ReportFormatterService` because content and format are different "reasons to change." CUPID asks a different question: **would callers ever want these pieces in different combinations?**
-
-If every caller always needs both — the content is meaningless without the format — then the split is artificial. You have created two classes that must always be changed and deployed together anyway. The seam adds interface overhead without composability.
+**The report example — how the test cuts both ways:**
 
 ```java
 // Artificial split: callers always need both; no one ever wants raw content alone
-@Service ReportContentService contentService;   // useless without formatter
+@Service ReportContentService contentService;     // useless without formatter
 @Service ReportFormatterService formatterService; // useless without content
 
 // One purpose from the outside: generate a formatted report
@@ -124,38 +86,27 @@ public class MonthlySalesReportService {
 }
 ```
 
-But if callers genuinely need the parts independently — say, PDF and Excel formats applied to the same content, or the same format applied to different data sources — *then* separating them is correct. Now each piece has a genuine, standalone purpose to its callers, and the split creates real composability.
+But when callers genuinely mix and match — PDF and Excel over the same content, one format
+over different data sources — the split creates real composability:
 
 ```java
-// Genuine composability: callers mix and match format and content independently
+// Genuine composability: callers combine format and content independently
 public interface ReportContent { ... }
 public interface ReportFormatter { ReportFile format(ReportContent content); }
 
-// Callers compose:
 var report = pdfFormatter.format(monthlySalesContent);
 var report = excelFormatter.format(monthlySalesContent);
 var report = pdfFormatter.format(ytdSalesContent);
 ```
 
-**The test:** *Would a caller ever want piece A without piece B, or wire them in a different combination?* If yes, separating them creates composable components — this is exactly what the Unix pipeline demonstrates. If no, the separation is internal housekeeping that leaks into the public API for no benefit.
-
-#### Why the Unix pipeline is not a contradiction
-
-Unix tools (`grep`, `sort`, `uniq`) are separated not because their *internals* have different change vectors, but because callers genuinely need them in different combinations:
-
-```bash
-cat access.log | grep ERROR | sort | uniq -c   # frequency of unique errors
-cat access.log | grep ERROR | sort -k1 | head  # first occurrence of each error
-```
-
-`sort` does not know what `grep` filtered. `uniq` does not know what `sort` ordered. Each has one purpose to its caller, and callers compose freely. That composability is the point.
-
-Spring Batch's Reader → Processor → Writer applies the same logic: a `JdbcCursorItemReader` can feed a `PaymentValidationProcessor`, and the same processor can be reused with a `FlatFileItemReader` for a batch file import. The separation creates real caller value.
+Spring Batch's Reader → Processor → Writer is the same logic: a `JdbcCursorItemReader` can feed
+a `PaymentValidationProcessor`, and the same processor is reused with a `FlatFileItemReader`
+for batch file imports — the separation creates real caller value:
 
 ```java
 @Bean
 public Step paymentProcessingStep(
-        ItemReader<RawPayment> reader,       // swap: DB or flat-file
+        ItemReader<RawPayment> reader,                 // swap: DB or flat-file
         ItemProcessor<RawPayment, Payment> processor,  // reused across sources
         ItemWriter<Payment> writer) {
     return stepBuilderFactory.get("processPayments")
@@ -167,7 +118,7 @@ public Step paymentProcessingStep(
 }
 ```
 
-#### Applying this in Spring Boot
+**Single purpose in Spring Boot terms:**
 
 ```java
 // Smell: purpose is unclear — does "process" mean authorise, persist, notify, all three?
@@ -183,31 +134,22 @@ public class PaymentAuthorisationService {
 }
 ```
 
-- Each `@RestController` owns one resource or capability — not a cluster of loosely related endpoints
-- Kafka consumers receive, validate, and **delegate** to a domain service; they do not also persist, notify, and publish inside the same listener method
-- A service named `PaymentService` with methods `authorise`, `refund`, `notify`, `archive` is a smell — it likely contains two or three single-purpose services that have not been named yet
+- Each `@RestController` owns one resource or capability — not a cluster of loosely related
+  endpoints.
+- Kafka consumers receive, validate, and **delegate** to a domain service; they do not also
+  persist, notify, and publish inside the same listener method.
+- A service named `PaymentService` with methods `authorise`, `refund`, `notify`, `archive` is
+  a smell — it likely contains two or three single-purpose services that have not been named yet.
 
 ---
 
-### P — Predictable: *Does What You Expect*
+## P — Predictable
 
-Code behaves consistently and reliably, and it is not only possible but **easy** to verify this. Predictability is a generalisation of testability that covers runtime behaviour, not just unit correctness.
+### Backpressure — bounded queues
 
-**Three dimensions of predictability:**
-
-| Dimension | Definition |
-|---|---|
-| Robustness | Breadth of situations covered; limitations are obvious |
-| Reliability | Consistent behaviour within covered scenarios |
-| Resilience | Graceful degradation under unexpected perturbations |
-
-#### Backpressure — Bounded Queues
-
-Unbounded queues cause memory spikes and thread starvation under sustained load. Bounding them makes system behaviour predictable under stress.
+Unbounded queues cause memory spikes and thread starvation under sustained load:
 
 ```java
-// .NET: Channel.CreateBounded(100) with FullMode.Wait
-// Java equivalent:
 BlockingQueue<PaymentJob> queue = new ArrayBlockingQueue<>(100);
 
 // Or with Spring Integration:
@@ -221,14 +163,15 @@ Flux.create(sink -> /* producer */, FluxSink.OverflowStrategy.ERROR)
     .onBackpressureBuffer(100);
 ```
 
-With Kafka: constrain consumer throughput with `max.poll.records` and process time budgets rather than letting the consumer thread fall arbitrarily behind.
+With Kafka: constrain consumer throughput with `max.poll.records` and process time budgets
+rather than letting the consumer thread fall arbitrarily behind.
 
-#### Idempotency Key Pattern
+### Idempotency key pattern
 
-Clients retry transient failures. Without idempotency, retries cause double-charges, duplicate records, or inconsistent state. The server must guarantee that replaying the same logical request produces the same observable outcome.
+Clients retry transient failures; the server must guarantee replaying the same logical request
+produces the same observable outcome:
 
 ```java
-// Filter or interceptor — runs before the controller
 @Component
 public class IdempotencyFilter extends OncePerRequestFilter {
 
@@ -248,7 +191,6 @@ public class IdempotencyFilter extends OncePerRequestFilter {
             writeCachedResponse(response, cached.get());
             return;
         }
-        // Wrap response to capture and store after processing
         CachingResponseWrapper wrapper = new CachingResponseWrapper(response);
         chain.doFilter(request, wrapper);
         store.put(key, wrapper.getCachedResponse());
@@ -258,9 +200,9 @@ public class IdempotencyFilter extends OncePerRequestFilter {
 
 Store idempotency keys in Redis with a TTL matching the client's retry window (e.g. 24 hours).
 
-#### Transactional Outbox / Inbox (Exactly-Once Processing)
+### Transactional outbox / inbox (exactly-once processing)
 
-The core distributed systems problem: a database write and a message publish cannot be atomic across different systems. The outbox pattern bridges them.
+A database write and a message publish cannot be atomic across systems; the outbox bridges them:
 
 ```java
 @Transactional
@@ -298,9 +240,10 @@ public void onPaymentAuthorised(PaymentAuthorisedEvent event) {
 }
 ```
 
-#### Resilience Layering with Resilience4j
+### Resilience layering with Resilience4j
 
-Policy order matters: **timeout → retry → circuit breaker → bulkhead**. Each layer applies at the right stage to prevent retry storms and cascading failures.
+Policy order matters: **timeout → retry → circuit breaker → bulkhead**. Each layer applies at
+the right stage to prevent retry storms and cascading failures.
 
 ```java
 @CircuitBreaker(name = "bankClient", fallbackMethod = "authoriseFallback")
@@ -353,7 +296,9 @@ resilience4j:
         maxWaitDuration: 100ms
 ```
 
-> **Note:** Resilience4j annotation execution order is Bulkhead > TimeLimiter > CircuitBreaker > Retry — regardless of annotation declaration order on the method. Configure via properties to reason about behaviour clearly.
+> **Note:** Resilience4j annotation execution order is Bulkhead > TimeLimiter > CircuitBreaker
+> > Retry — regardless of annotation declaration order on the method. Configure via properties
+> to reason about behaviour clearly.
 
 **Retries with jitter** (manual configuration to prevent thundering herds):
 
@@ -367,18 +312,18 @@ public RetryConfig bankClientRetryConfig() {
 }
 ```
 
-#### Observability — Dan North's Six-Stage Maturity Model
+### Observability
 
-Most services never progress beyond stage 1. Deliberate design for observability is a Predictable property.
+Implementation of the six-stage maturity model from the generic skill:
 
-| Stage | What it means | Spring Boot / Java implementation |
-|---|---|---|
-| 1 Instrumentation | Software communicates what it is doing | SLF4J structured logs, `Observation` API spans |
-| 2 Telemetry | Making that information available | Actuator `/actuator/prometheus`, OTEL exporter |
-| 3 Monitoring | Receiving and visualising instrumentation | Prometheus + Grafana |
-| 4 Alerting | Reacting to monitored data patterns | Alertmanager rules |
-| 5 Predicting | Anticipating events from historical data | Grafana ML / external tooling |
-| 6 Adapting | Dynamic system changes responding to predictions | HPA on custom metrics via KEDA |
+| Stage | Spring Boot / Java implementation |
+|---|---|
+| 1 Instrumentation | SLF4J structured logs, `Observation` API spans |
+| 2 Telemetry | Actuator `/actuator/prometheus`, OTEL exporter |
+| 3 Monitoring | Prometheus + Grafana |
+| 4 Alerting | Alertmanager rules |
+| 5 Predicting | Grafana ML / external tooling |
+| 6 Adapting | HPA on custom metrics via KEDA |
 
 **Spring Boot 3+ observability setup:**
 
@@ -442,9 +387,9 @@ log.info("Payment authorised",
 
 ---
 
-### I — Idiomatic: *Feels Natural*
+## I — Idiomatic
 
-Code reflects the conventions of the language, ecosystem, and team. The target audience is **an experienced Java developer who does not know this codebase** — not a beginner, not the original author.
+Target reader: an experienced Java developer who does not know this codebase.
 
 **Constructor injection — the idiomatic Spring Boot style:**
 
@@ -489,8 +434,10 @@ public record BankClientProperties(
     @Min(100) int timeoutMs,
     @NotBlank String apiKey
 ) {}
+```
 
-// application.yml — structured, auto-completed by IDE
+```yaml
+# application.yml — structured, auto-completed by IDE
 bank:
   api:
     url: https://bank.example.com
@@ -574,21 +521,21 @@ class PaymentEntity {
 
 **Team idioms — document in Architecture Decision Records (ADRs):**
 
-- Logging format (JSON via `logstash-logback-encoder` vs. plain-text) and what constitutes a loggable event vs. a metric
-- Error response envelope (`ProblemDetail` RFC 9457 is the Spring 6 default — adopt it unless there is a specific reason not to)
+- Logging format (JSON via `logstash-logback-encoder` vs. plain-text) and what constitutes a
+  loggable event vs. a metric
+- Error response envelope (`ProblemDetail` RFC 9457 is the Spring 6 default — adopt it unless
+  there is a specific reason not to)
 - Package structure convention (see Domain-based section)
-- Exception hierarchy: unchecked domain exceptions (`PaymentDeclinedException`) vs. infrastructure exceptions, and which layer translates which
-- Profile strategy: `local`, `test`, `staging`, `production` — and which properties each profile overrides
+- Exception hierarchy: unchecked domain exceptions (`PaymentDeclinedException`) vs.
+  infrastructure exceptions, and which layer translates which
+- Profile strategy: `local`, `test`, `staging`, `production` — and which properties each
+  profile overrides
 
 ---
 
-### D — Domain-based: *In Language and Structure*
+## D — Domain-based
 
-Code conveys its purpose in problem domain vocabulary, and its physical structure mirrors the domain — not the framework's scaffolding.
-
-**Domain-based language:**
-
-Prefer domain types over primitives:
+**Domain types over primitives:**
 
 ```java
 // Smell: stringly-typed / primitive-obsessed
@@ -611,9 +558,7 @@ public record Money(BigDecimal amount, Currency currency) {
 }
 ```
 
-**Domain-based structure:**
-
-Avoid the framework scaffold as your top-level package layout:
+**Domain-first package layout:**
 
 ```
 # Anti-pattern: framework-first layout
@@ -626,7 +571,8 @@ src/main/java/com/example/
 └── config/
 ```
 
-This layout scatters a single domain capability (e.g. payment authorisation) across five packages and forces developers to navigate the whole tree for every change.
+This layout scatters a single domain capability (e.g. payment authorisation) across five
+packages and forces developers to navigate the whole tree for every change.
 
 ```
 # CUPID-aligned: domain-first layout
@@ -649,13 +595,13 @@ src/main/java/com/example/
 └── notifications/
 ```
 
-All code for a bounded context lives together. A change to payment authorisation touches one directory tree. Adding a new domain adds one new directory.
+All code for a bounded context lives together. A change to payment authorisation touches one
+directory tree. Adding a new domain adds one new directory.
 
-**Domain boundaries as deployment boundaries:**
+**Domain boundaries as deployment boundaries — Spring Modulith:**
 
-When structure aligns with domains, extracting a service is a move, not a rewrite. The boundary already exists in the code; deployment just makes it a process boundary too.
-
-Spring Modulith enforces these boundaries at test time:
+When structure aligns with domains, extracting a service is a move, not a rewrite. Spring
+Modulith enforces the boundaries at test time:
 
 ```java
 // Verify that the payments module only exposes its intended API surface
@@ -703,33 +649,7 @@ void writesModuleDocumentation(ApplicationModules modules) throws Exception {
 
 ---
 
-## Production Readiness Scorecard
-
-Rate each CUPID property 0–3 before scaling:
-
-| Score | Meaning |
-|---|---|
-| 0 | No evidence of this property |
-| 1 | Informal / inconsistent application |
-| 2 | Consistent, evidenced in code, tests, or metrics |
-| 3 | Embedded in tooling, pipelines, and process with automated verification |
-
-| Property | 0 | 1 | 2 | 3 |
-|---|---|---|---|---|
-| **Composable** | God `AppConfig`, shared core drags in everything | Some domain configs, but still cross-cutting | Domain-scoped `@Configuration`, narrow interfaces | Auto-configuration with documented surface area, contract tests |
-| **Unix Philosophy** | Multi-purpose services/controllers | Coarse capability groupings | One resource per controller, one purpose per service | Enforced via architecture tests (ArchUnit) |
-| **Predictable** | No resilience, no idempotency, unbounded queues | Ad-hoc `try/catch`, some retries | Resilience4j per-client, idempotency filter, bounded queues | Chaos engineering, fault injection tests, SLO dashboards |
-| **Idiomatic** | Mixed styles, annotation scatter, inconsistent patterns | Team has rough conventions | Checkstyle / SpotBugs / PMD enforced in CI | ADRs maintained, linting in pre-commit, onboarding guide verified |
-| **Domain-based** | Framework scaffold as package structure | Some domain groupings | Domain-first layout, domain types for key concepts | Spring Modulith module tests, domain glossary maintained |
-
-**Thresholds:**
-- Average ≥ 2.5 → ready for production at scale
-- Average 1.5–2.4 → limited release only; identify the lowest-scoring property and address it first
-- Average < 1.5 → refactor before scaling
-
----
-
-## Common Smells and Quick Fixes
+## Common smells and quick fixes
 
 | Smell | Symptom | Fix |
 |---|---|---|
@@ -744,47 +664,38 @@ Rate each CUPID property 0–3 before scaling:
 | Missing observability | Logs exist but no traces, no metrics on business operations | Micrometer Observation API + Actuator + OTEL exporter |
 | API versioning by removal | Renaming or removing fields breaks deployed consumers | Additive changes only; use `@JsonProperty` aliases; `Sunset` headers |
 
----
+## Library reference
 
-## Library Reference
-
-| Concern | Library / Mechanism | Notes |
+| Concern | Library / mechanism | Notes |
 |---|---|---|
-| Resilience (retry, CB, bulkhead, timeout) | `resilience4j-spring-boot3` | Direct Polly equivalent; use annotations + `application.yml` |
+| Resilience (retry, CB, bulkhead, timeout) | `resilience4j-spring-boot3` | Use annotations + `application.yml` |
 | Distributed tracing | `micrometer-tracing-bridge-otel` + OTEL Java agent | Spring Boot 3+ native support |
 | Metrics | `micrometer-registry-prometheus` + Spring Actuator | `/actuator/prometheus` endpoint |
 | Structured logging | `logstash-logback-encoder` | JSON logs with automatic trace/span ID injection |
 | Transactional outbox | `spring-modulith-events-*` or `transaction-outbox` (gruelbox) | Spring Modulith is the idiomatic Spring choice |
 | Kafka idempotent consumer | `spring-kafka` + manual inbox table | Or Kafka transactions + `isolation.level=read_committed` |
-| Consumer-driven contract tests | `pact-jvm-provider-spring` | Identical workflow to Pact for .NET |
-| API gateway / version routing | `spring-cloud-gateway` | Equivalent to YARP |
+| Consumer-driven contract tests | `pact-jvm-provider-spring` | |
+| API gateway / version routing | `spring-cloud-gateway` | |
 | Architecture enforcement | `archunit` | Enforce module boundaries, layer rules, naming conventions |
 | Module boundary testing | `spring-modulith-test` | `@ApplicationModuleTest` per bounded context |
 | Configuration binding | `@ConfigurationProperties` | Prefer over scattered `@Value` |
 | API versioning | Path-based (`/api/v1/...`) + `springdoc-openapi` | Plus `Sunset` / `Deprecation` response headers |
 | Validation | `spring-boot-starter-validation` + Hibernate Validator | `@Valid` on controller params; `@NotNull`, `@Size` etc. |
 
----
+## Scorecard evidence (what 0–3 looks like in Spring Boot)
 
-## Quick Reference: CUPID as a Code Review Lens
+Use the scoring model from `cupid-properties`; Java/Spring-specific evidence:
 
-Ask these questions at code review time:
+| Property | 0 | 1 | 2 | 3 |
+|---|---|---|---|---|
+| **Composable** | God `AppConfig`, shared core drags in everything | Some domain configs, but still cross-cutting | Domain-scoped `@Configuration`, narrow interfaces | Auto-configuration with documented surface area, contract tests |
+| **Unix philosophy** | Multi-purpose services/controllers | Coarse capability groupings | One resource per controller, one purpose per service | Enforced via architecture tests (ArchUnit) |
+| **Predictable** | No resilience, no idempotency, unbounded queues | Ad-hoc `try/catch`, some retries | Resilience4j per-client, idempotency filter, bounded queues | Chaos engineering, fault injection tests, SLO dashboards |
+| **Idiomatic** | Mixed styles, annotation scatter, inconsistent patterns | Team has rough conventions | Checkstyle / SpotBugs / PMD enforced in CI | ADRs maintained, linting in pre-commit, onboarding guide verified |
+| **Domain-based** | Framework scaffold as package structure | Some domain groupings | Domain-first layout, domain types for key concepts | Spring Modulith module tests, domain glossary maintained |
 
-| Property | Review question |
-|---|---|
-| **Composable** | Can I use this component without pulling in things I don't need? Is the API surface the minimum needed? |
-| **Unix Philosophy** | From a caller's perspective, does this do exactly one thing? Would a different name reveal a hidden second purpose? |
-| **Predictable** | What happens when a downstream dependency is slow? When a request is retried? Is the result always the same for the same input? |
-| **Idiomatic** | Does this look like code written by someone who knows Spring Boot and our team conventions? Would a new joiner find it familiar? |
-| **Domain-based** | Do the names come from the business domain or the framework? If I rename this package, does the new name mean something to a domain expert? |
+## Further reading (stack-specific)
 
----
-
-## Further Reading
-
-- [CUPID — for joyful coding](https://dannorth.net/blog/cupid-for-joyful-coding/) — Dan North
-- [CUPID — the back story](https://dannorth.net/blog/cupid-the-back-story/) — Dan North
-- [From SOLID to CUPID: Design Principles That Survive Production in Cloud-Native .NET](https://developersvoice.com/blog/architecture/solid-to-cupid-playbook/) — Developers Voice
 - [Resilience4j User Guide](https://resilience4j.readme.io/docs/getting-started)
 - [Spring Modulith Reference Documentation](https://docs.spring.io/spring-modulith/reference/)
 - [Micrometer Tracing](https://micrometer.io/docs/tracing)
