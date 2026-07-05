@@ -33,6 +33,7 @@ other altitudes and cross-reference it:
 
 | Altitude | Skill | Question it answers |
 |---|---|---|
+| Meta — any level | `simple-design` (Beck's Four Rules) | Is this the simplest design that works? |
 | Class / method (micro) | `software-design-principles` | Is this code well constructed? |
 | Component / system (macro) | `cupid-properties` (+ stack skill) | Is this a good component to live with? |
 | Between components | `coupling-analysis` | Are the dependencies between parts healthy? |

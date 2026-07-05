@@ -14,7 +14,8 @@ This skill governs **code construction at class and method level** (micro). It c
 when assessing components, boundaries, or overall design direction; load this skill when
 writing or refactoring the code inside them. The rules here are deliberately binary defaults
 for construction; CUPID properties are the judgment layer — when a rule fights a property in
-context, the property wins.
+context, the property wins. Above both sits `simple-design` (Beck's Four Rules) as the final
+tiebreaker: passes the tests → reveals intention → no duplication → fewest elements.
 
 How the rules here serve the CUPID properties:
 
