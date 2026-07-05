@@ -17,12 +17,18 @@ for construction; CUPID properties are the judgment layer — when a rule fights
 context, the property wins. Above both sits `simple-design` (Beck's Four Rules) as the final
 tiebreaker: passes the tests → reveals intention → no duplication → fewest elements.
 
+For naming specifically, this skill only enforces the resulting rules (banned generic
+terms, no abbreviations, no getters/setters) as fast checklist items. When a name needs to
+be *derived* — not just checked against a list — load `naming` for the technique: optimising
+for the calling context, wishful thinking, letting domain types free up parameter names, and
+scope-determines-length.
+
 How the rules here serve the CUPID properties:
 
 | This skill | Serves CUPID property |
 |---|---|
 | Wrap primitives, rich value objects, domain vocabulary | Domain-based |
-| Intention-revealing names, no generic names | Composable (intention-revealing), Unix (name the purpose) |
+| Intention-revealing names, no generic names (see `naming` for technique) | Composable (intention-revealing), Unix (name the purpose) |
 | Illegal states unrepresentable, fail-fast, validation at boundaries | Predictable |
 | Dependency injection, small surface | Composable |
 | Calisthenics, SLAP, composed method, tell-don't-ask | Code that *fits in your head* (North's alternative to SRP) |
@@ -37,7 +43,7 @@ Apply during all code reviews:
 2. **Type-safety** – Eliminate unsafe casts, raw types, suppressed warnings
 3. **Illegal states unrepresentable** – Use sealed types/discriminated unions
 4. **Dependency injection** – Never instantiate dependencies inside methods
-5. **Intention-revealing names** – Ban generic terms: `data`, `utils`, `helpers`, `handler`, `processor`
+5. **Intention-revealing names** – Ban generic terms: `data`, `utils`, `helpers`, `handler`, `processor` (for how to derive the right name instead, see `naming`)
 6. **Tell, don't ask** – Push behavior into objects where data lives
 7. **No comments** – Refactor for clarity instead
 8. **Validation at boundaries** – Use validation libraries for external data
