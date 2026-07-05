@@ -17,11 +17,13 @@ stack skill supplies concrete idioms, libraries, and code patterns; this skill s
 properties themselves and how to judge them. If no stack skill exists, apply this guidance
 directly and translate the property tests into the idioms of the language at hand.
 
-This skill judges design at **component and system level** (macro). Two complementary skills
+This skill judges design at **component and system level** (macro). Complementary skills
 operate at other altitudes and compose with it:
 
 - `software-design-principles` — class/method-level construction rules (calisthenics,
   tell-don't-ask, SLAP). Load it when writing or refactoring the code *inside* components.
+- `naming` — technique for deriving names (not just checking them against a banned list);
+  cuts across every altitude, most directly Composable and Domain-based here.
 - `coupling-analysis` — Khononov's coupling model (strength × distance × volatility) for
   analysing dependencies *between* components; pairs with Composable and Domain-based.
 
@@ -162,7 +164,9 @@ or the business.
 
 1. **Domain-based language** — express concepts as domain types, not computer-science
    constructs. `Surname` beats `string[30]`; `Money` beats a float. Domain types carry
-   invariants and intent; primitives carry neither.
+   invariants and intent; primitives carry neither. (See `naming` for the technique: domain
+   types don't just satisfy the type system, they liberate the parameter name to say *why*
+   the argument is there instead of *what* it is.)
 2. **Domain-based structure** — the directory/module layout mirrors the domain, not the
    framework scaffold. A layout of `controllers/`, `services/`, `models/` scatters every
    domain change across the tree; a layout of `appointments/`, `patient_history/`,

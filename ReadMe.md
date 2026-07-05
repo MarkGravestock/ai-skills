@@ -4,7 +4,7 @@ Source of truth for personal agent skills, synced to Claude Code and Tabnine.
 
 ```
 ai-skills/
-├── design/     software design guidance (simple-design, software-design-principles,
+├── design/     software design guidance (simple-design, software-design-principles, naming,
 │               cupid/, coupling-analysis, validation-review, plan-eng-review)
 ├── testing/    testing skills (bug-magnet, groovy-spock, junit5, kotest)
 ├── writing/    writing skills (notes/ session-notes system, tropes)
@@ -32,6 +32,7 @@ answers a different question. One meta layer sits above them all and acts as the
 | Altitude | Skill(s) | Question it answers |
 |---|---|---|
 | **Meta — any level** | `simple-design` (Beck's Four Rules) | Is this the simplest design that works? Which guidance wins when they conflict? |
+| **Cross-cutting — any level** | `naming` | Does this identifier communicate as much as it could, given its scope and context? |
 | Class / method (micro) | `software-design-principles` | Is this code well constructed? |
 | Component / system (macro) | `cupid-properties` + stack skill (`cupid-python`, `cupid-java-spring-boot`) | Is this a good component to live with? |
 | Between components | `coupling-analysis` | Are the dependencies between parts healthy? |
@@ -61,6 +62,7 @@ from different skills conflict in context, resolve with the four rules in priori
 | Skill | Purpose |
 |---|---|
 | `simple-design` | Beck's Four Rules as meta-guidance and tiebreaker |
+| `naming` | Technique for deriving names — calling-context, wishful thinking, domain types, scope-length |
 | `software-design-principles` | Class/method construction rules (calisthenics, tell-don't-ask, SLAP) |
 | `cupid/` | CUPID properties: generic core + Python and Java/Spring Boot stack skills ([README](design/cupid/README.md)) |
 | `coupling-analysis` | Stub delegating to Khononov's [Modularity plugin](https://github.com/vladikk/modularity) |
