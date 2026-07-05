@@ -25,6 +25,10 @@ operate at other altitudes and compose with it:
 - `coupling-analysis` — Khononov's coupling model (strength × distance × volatility) for
   analysing dependencies *between* components; pairs with Composable and Domain-based.
 
+Above all altitudes sits `simple-design` (Beck's Four Rules of Simple Design) — the
+tiebreaker when guidance conflicts: passes the tests → reveals intention → no duplication →
+fewest elements, in that priority order.
+
 ## Properties, not principles
 
 The central philosophical move: CUPID describes **properties** (qualities code exhibits to a
