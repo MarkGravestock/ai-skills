@@ -482,7 +482,7 @@ class PaymentControllerTest { ... }
 // Good: test slices load only what the layer needs
 @WebMvcTest(PaymentAuthorisationController.class)   // controller layer only
 class PaymentAuthorisationControllerTest {
-    @MockBean PaymentAuthorisationService service;
+    @MockitoBean PaymentAuthorisationService service;  // @MockBean is deprecated since Boot 3.4
     // tests HTTP mapping, validation, error responses — not service logic
 }
 

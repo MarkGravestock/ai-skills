@@ -1,6 +1,6 @@
 ---
 name: spring-boot-4-gradle-9-upgrade
-description: Use when upgrading a Spring Boot project to Spring Boot 4 with Gradle 8→9, switching from io.spring.dependency-management plugin to native Gradle BOM, adding a version catalog, or when getting "could not find X:" resolution errors after removing the dependency-management plugin.
+description: Use when upgrading a Spring Boot project to Spring Boot 4 (Gradle 8→9 or Maven), switching from io.spring.dependency-management plugin to native Gradle BOM, adding a version catalog, or when getting "could not find X:" resolution errors after removing the dependency-management plugin. Also covers Boot 4 migration gotchas independent of build tool - Jackson 3 package split, Testcontainers 2 artifact renames, @MockBean deprecation, and modular test starters.
 ---
 
 # Spring Boot 4 + Gradle 9 Upgrade
@@ -146,6 +146,72 @@ spring.threads.virtual.enabled=true
 ```
 
 This switches Tomcat, scheduled tasks, and `@Async` to use virtual threads. Has no effect below Java 21. No code changes needed — worthwhile on Java 25.
+
+### Jackson 3: API Classes Move, Annotations Don't
+
+Spring Boot 4 ships Jackson 3, which splits packages in a way that trips up both humans and
+code generators. **API classes** move to `tools.jackson`; **annotations stay** in
+`com.fasterxml.jackson.annotation`:
+
+```java
+// ✅ CORRECT — annotations do NOT change package
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+// ✅ CORRECT — API classes move to tools.jackson
+import tools.jackson.databind.ObjectMapper;
+
+// ❌ WRONG — this package does not exist
+import tools.jackson.annotation.JsonProperty;
+```
+
+### Testcontainers 2: Artifact and Package Renames
+
+Module artifacts gain a `testcontainers-` prefix, and module packages change:
+
+```xml
+<!-- ❌ TC 1.x artifact -->
+<artifactId>postgresql</artifactId>
+
+<!-- ✅ TC 2.x artifact -->
+<artifactId>testcontainers-postgresql</artifactId>
+```
+
+```java
+import org.testcontainers.postgresql.PostgreSQLContainer;  // TC 2.x package
+
+@TestConfiguration(proxyBeanMethods = false)
+class TestcontainersConfiguration {   // must be package-private in Boot 4 — no `public`
+    @Bean
+    @ServiceConnection
+    PostgreSQLContainer postgresContainer() {
+        return new PostgreSQLContainer("postgres:16-alpine");
+    }
+}
+```
+
+`@ServiceConnection` replaces manual `@DynamicPropertySource` wiring — Spring Boot derives the
+datasource properties from the container. Import into integration tests with
+`@Import(TestcontainersConfiguration.class)`.
+
+### Testing: @MockBean Deprecated, Test Starters Modularised
+
+- **`@MockBean` / `@SpyBean` are deprecated** — use `@MockitoBean` / `@MockitoSpyBean` from
+  `org.springframework.test.context.bean.override.mockito` (Spring Framework, not Boot).
+- **Test slice annotations moved to modular starters**: `@WebMvcTest` and
+  `@AutoConfigureMockMvc` now live in `org.springframework.boot.webmvc.test.autoconfigure`
+  and require the `spring-boot-starter-webmvc-test` dependency (similarly
+  `spring-boot-starter-data-jpa-test` for `@DataJpaTest`). If `@WebMvcTest` fails to resolve
+  after the upgrade, add the starter — `spring-boot-starter-test` alone no longer provides it.
+
+### Maven Projects
+
+The Gradle `platform()` gotchas above don't apply to Maven: `spring-boot-starter-parent` (or a
+`dependencyManagement` BOM import) continues to manage versions across all scopes unchanged.
+Maven upgrades hit the build-tool-independent changes only: Jackson 3 packages,
+Testcontainers 2 artifacts, test starter modularisation, and the property renames listed
+above.
 
 ---
 
@@ -365,3 +431,8 @@ This is an upstream Lombok issue — nothing in your project can fix it. The war
 | Hibernate version | 6.x | 7.x — `GenerationType.AUTO` behavior changed |
 | Configs eager mutation | `configurations.all {}` | `configurations.configureEach {}` |
 | Virtual threads | Opt-in, limited | `spring.threads.virtual.enabled=true` |
+| Jackson API classes | `com.fasterxml.jackson.databind.*` | `tools.jackson.databind.*` (annotations unchanged) |
+| Testcontainers module | `org.testcontainers:postgresql` | `org.testcontainers:testcontainers-postgresql` |
+| Mocking in slices | `@MockBean` / `@SpyBean` | `@MockitoBean` / `@MockitoSpyBean` |
+| `@WebMvcTest` provided by | `spring-boot-starter-test` | `spring-boot-starter-webmvc-test` |
+| Container datasource wiring | `@DynamicPropertySource` | `@ServiceConnection` |

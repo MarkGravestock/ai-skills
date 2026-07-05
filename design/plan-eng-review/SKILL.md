@@ -1,10 +1,6 @@
 ---
 name: plan-eng-review
-version: 1.0.0
-description: |
-  Eng manager-mode plan review. Lock in the execution plan — architecture,
-  data flow, diagrams, edge cases, test coverage, performance. Walks through
-  issues interactively with opinionated recommendations.
+description: Eng manager-mode plan review. Lock in the execution plan — architecture, data flow, diagrams, edge cases, test coverage, performance — before any code is written. Walks through issues interactively with opinionated recommendations via AskUserQuestion. Use when asked to review a plan, spec, or design doc before implementation. Composes with simple-design (judgment tiebreaker), software-design-principles (code-level rules), and cupid-properties + stack skill (component-level properties).
 allowed-tools:
   - Read
   - Grep
@@ -13,8 +9,6 @@ allowed-tools:
   - Bash
 ---
 
-{{UPDATE_CHECK}}
-
 # Plan Review Mode
 
 Review this plan thoroughly before making any code changes. For every issue or recommendation, explain the concrete tradeoffs, give me an opinionated recommendation, and ask for my input before assuming a direction.
@@ -22,30 +16,25 @@ Review this plan thoroughly before making any code changes. For every issue or r
 ## Priority hierarchy
 If you are running low on context or the user asks you to compress: Step 0 > Test diagram > Opinionated recommendations > Everything else. Never skip Step 0 or the test diagram.
 
-## My engineering preferences (use these to guide your recommendations):
-* Follow the 4 rules of simple design
-  * Passes the tests 
-    * Well-tested code is non-negotiable; I'd rather have too many tests than too few.
-  * Reveals intention
-    * Bias toward explicit over clever.
-  * No duplication
-     * DRY is important—flag repetition aggressively.
-  * Fewest elements
+## Engineering preferences (use these to guide your recommendations)
+
+The judgment framework comes from the design skills — load them rather than restating them:
+
+* **`simple-design`** — Kent Beck's Four Rules in priority order (passes the tests → reveals intention → no duplication → fewest elements) are the tiebreaker for every recommendation in this review. My emphasis within them:
+  * Well-tested code is non-negotiable; I'd rather have too many tests than too few.
+  * Bias toward explicit over clever.
+  * Flag repetition aggressively.
+* **`cupid-properties`** (+ the stack skill, e.g. `cupid-java-spring-boot`) — the component/system-level lens for the Architecture review section.
+* **`software-design-principles`** — the class/method-level rules for the Code Quality section, including the comments policy (comments explain *why*, never *what*; refactor instead of explaining; the no-comments rule does not apply to co-located docs, ADRs, or public API Javadoc in shared libraries).
 * I want code "engineered enough" — not under-engineered (fragile, hacky) and not over-engineered (premature abstraction, unnecessary complexity).
 * I err on the side of handling more edge cases, not fewer; thoughtfulness > speed.
   * Make it work, Make it right, Make it fast.
 
 ## Documentation and diagrams:
 * I value ASCII art diagrams highly — for data flow, state machines, dependency graphs, processing pipelines, and decision trees. Use them liberally in plans and design docs.
-  * Use plantUML and C4 notation for complex diagrams. 
+  * Use plantUML and C4 notation for complex diagrams.
 * For particularly complex designs or behaviours, place ASCII diagrams in co-located documentation files (e.g. `package-info.java`, `README.md` within the package/module, or ADRs) rather than inline code comments.
 * **Diagram maintenance is part of the change.** When modifying code that has adjacent diagrams, review whether those diagrams are still accurate. Update them as part of the same commit. Stale diagrams are worse than no diagrams — they actively mislead. Flag any stale diagrams you encounter during review even if they're outside the immediate scope of the change.
-
-## Code comments policy:
-* **Comments in code explain *why*, never *what*.** The code itself must express what it does through naming, structure, and domain language. A comment is only warranted when a decision is non-obvious — an unusual algorithm choice, a regulatory constraint, a known workaround for an external limitation.
-* **Refactor instead of explain.** If you feel the urge to write a comment explaining what a block of code does, that is a signal to extract a well-named method instead.
-* **Shared library code is different.** Public API surface in shared libraries may warrant Javadoc on public types and methods, because callers cannot read the implementation. This exception applies to the public contract only, not internal implementation details.
-* **Co-located docs are encouraged.** More extensive documentation is welcome as `README.md` files within domain packages, ADRs, or `package-info.java`. These are not subject to the no-comments rule — they are documentation, not code.
 
 ## BEFORE YOU START:
 
@@ -66,9 +55,9 @@ Then ask if I want one of three options:
 ## Review Sections (after scope is agreed)
 
 ### 1. Architecture review
-Evaluate:
+Apply the CUPID review lens from `cupid-properties` (plus the stack skill for concrete evidence). Evaluate:
 * Overall system design and component boundaries.
-* Dependency graph and coupling concerns.
+* Dependency graph and coupling concerns (the `coupling-analysis` skill routes to the Balanced Coupling model for anything non-trivial).
 * Data flow patterns and potential bottlenecks.
 * Scaling characteristics and single points of failure.
 * Security architecture (auth, data access, API boundaries).
@@ -79,7 +68,7 @@ Evaluate:
 **STOP.** For each issue found in this section, call AskUserQuestion individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one AskUserQuestion. Only proceed to the next section after ALL issues in this section are resolved.
 
 ### 2. Code quality review
-Evaluate:
+Apply the `software-design-principles` checklist. Evaluate:
 * Code organization and module structure.
 * DRY violations—be aggressive here.
 * Error handling patterns and missing edge cases (call these out explicitly).
@@ -90,7 +79,7 @@ Evaluate:
 **STOP.** For each issue found in this section, call AskUserQuestion individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one AskUserQuestion. Only proceed to the next section after ALL issues in this section are resolved.
 
 ### 3. Test review
-Make a diagram of all new UX, new data flow, new codepaths, and new branching if statements or outcomes. For each, note what is new about the features discussed in this branch and plan. Then, for each new item in the diagram, make sure there is a test at the appropriate layer:
+Make a diagram of all new UX, new data flow, new codepaths, and new branching if statements or outcomes. For each, note what is new about the features discussed in this branch and plan. Then, for each new item in the diagram, make sure there is a test at the appropriate layer (test-slice guidance lives in `cupid-java-spring-boot` under Idiomatic):
 * **Unit/domain tests** (plain JUnit/Spock, no Spring context) — for domain logic, value objects, business rules
 * **`@WebMvcTest`** — for controller layer: HTTP mapping, request validation, error responses; mock the service layer
 * **`@DataJpaTest`** — for repository layer: queries, persistence mapping, transaction behaviour
@@ -134,7 +123,7 @@ Every plan review MUST produce a "NOT in scope" section listing work that was co
 List existing code/flows that already partially solve sub-problems in this plan, and whether the plan reuses them or unnecessarily rebuilds them.
 
 ### TODOS.md updates
-After all review sections are complete, present each potential TODO as its own individual AskUserQuestion. Never batch TODOs — one per question. Never silently skip this step. Follow the format in `.claude/skills/review/TODOS-format.md`.
+After all review sections are complete, present each potential TODO as its own individual AskUserQuestion. Never batch TODOs — one per question. Never silently skip this step. Use the format below.
 
 For each TODO, describe:
 * **What:** One-line description of the work.
@@ -182,4 +171,4 @@ Check the git log for this branch. If there are prior commits suggesting a previ
 * After each review section, pause and ask for feedback before moving on.
 
 ## Unresolved decisions
-If the user does not respond to an AskUserQuestion or interrupts to move on, note which decisions were left unresolved. At the end of the review, list these as "Unresolved decisions that may bite you later" — never silently default to an option.n
+If the user does not respond to an AskUserQuestion or interrupts to move on, note which decisions were left unresolved. At the end of the review, list these as "Unresolved decisions that may bite you later" — never silently default to an option.
