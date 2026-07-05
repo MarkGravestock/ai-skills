@@ -17,6 +17,14 @@ stack skill supplies concrete idioms, libraries, and code patterns; this skill s
 properties themselves and how to judge them. If no stack skill exists, apply this guidance
 directly and translate the property tests into the idioms of the language at hand.
 
+This skill judges design at **component and system level** (macro). Two complementary skills
+operate at other altitudes and compose with it:
+
+- `software-design-principles` — class/method-level construction rules (calisthenics,
+  tell-don't-ask, SLAP). Load it when writing or refactoring the code *inside* components.
+- `coupling-analysis` — Khononov's coupling model (strength × distance × volatility) for
+  analysing dependencies *between* components; pairs with Composable and Domain-based.
+
 ## Properties, not principles
 
 The central philosophical move: CUPID describes **properties** (qualities code exhibits to a

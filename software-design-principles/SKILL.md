@@ -1,11 +1,30 @@
 ---
 name: software-design-principles
-description: Use when reviewing code design, refactoring, or requested to improve code quality - covers object calisthenics, single level of abstraction, composed method pattern, dependency inversion, fail-fast error handling, feature envy detection, intention-revealing naming, and tell-don't-ask principle
+description: Micro-level (class/method) code construction rules - object calisthenics, single level of abstraction, composed method pattern, dependency injection, fail-fast error handling, feature envy detection, intention-revealing naming, and tell-don't-ask principle. Use when writing, reviewing, or refactoring individual classes and methods. Composes with the cupid-properties skill, which judges design at component/system level.
 ---
 
 # Software Design Principles
 
 Language-agnostic OO design principles. Examples use modern Java; adapt to your language.
+
+## How this skill composes
+
+This skill governs **code construction at class and method level** (micro). It composes with
+`cupid-properties`, which judges design at **component and system level** (macro): load CUPID
+when assessing components, boundaries, or overall design direction; load this skill when
+writing or refactoring the code inside them. The rules here are deliberately binary defaults
+for construction; CUPID properties are the judgment layer — when a rule fights a property in
+context, the property wins.
+
+How the rules here serve the CUPID properties:
+
+| This skill | Serves CUPID property |
+|---|---|
+| Wrap primitives, rich value objects, domain vocabulary | Domain-based |
+| Intention-revealing names, no generic names | Composable (intention-revealing), Unix (name the purpose) |
+| Illegal states unrepresentable, fail-fast, validation at boundaries | Predictable |
+| Dependency injection, small surface | Composable |
+| Calisthenics, SLAP, composed method, tell-don't-ask | Code that *fits in your head* (North's alternative to SRP) |
 
 **ATTRIBUTION:** Core principles adapted from NTCoding's software-design-principles skill (https://github.com/NTCoding/claude-skillz/blob/main/software-design-principles). Extended with Tell-Don't-Ask, SLAP, and Composed Method.
 
@@ -101,7 +120,11 @@ record Money(BigDecimal amount, String currency) {
 if (price.isGreaterThan(threshold)) { ... }
 ```
 
-**Dependency Inversion:** Inject via constructor, never `new X()` inside methods.
+**Dependency Injection:** Inject via constructor, never `new X()` inside methods. (Injection,
+not the Dependency *Inversion* Principle — do not add an interface per class; a
+single-implementation interface adds cost, not value. Introduce an abstraction only when a
+second implementation genuinely exists, e.g. a test fake with real behaviour or a swappable
+adapter.)
 
 **Type-Driven Design:** Use sealed types to make illegal states unrepresentable. Pattern matching for exhaustive handling.
 

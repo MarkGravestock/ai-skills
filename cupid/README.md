@@ -26,6 +26,17 @@ Adding a new stack (e.g. TypeScript): create `typescript/SKILL.md` following the
 an existing stack skill, add `typescript` to the `SKILLS` array in `sync.sh`, and leave
 `properties/` untouched.
 
+## Related skills (different altitudes)
+
+CUPID judges components and systems. Two sibling skills in this repo compose with it at
+other altitudes and cross-reference it:
+
+| Altitude | Skill | Question it answers |
+|---|---|---|
+| Class / method (micro) | `software-design-principles` | Is this code well constructed? |
+| Component / system (macro) | `cupid-properties` (+ stack skill) | Is this a good component to live with? |
+| Between components | `coupling-analysis` | Are the dependencies between parts healthy? |
+
 ## Install / sync
 
 ```bash
