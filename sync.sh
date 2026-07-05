@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Root sync: delegates to the family sync scripts (notes/, cupid/), which own
-# their internal layout, then installs every standalone top-level skill (any
-# directory containing a SKILL.md) to Claude Code and Tabnine skill locations.
+# Root sync: delegates to the family sync scripts (notes/, design/cupid/),
+# which own their internal layout, then installs every standalone skill (any
+# directory containing a SKILL.md, at the top level or under a topic dir —
+# testing/, design/) to Claude Code and Tabnine skill locations.
 #
 # Usage:
 #   ./sync.sh          # copy (default)
@@ -18,15 +19,16 @@ CLAUDE_SKILLS_DIR="${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"
 TABNINE_SKILLS_DIR="${TABNINE_SKILLS_DIR:-$HOME/.tabnine/agent/skills}"
 
 # Skill families with their own sync scripts
-for family in notes cupid; do
+for family in notes design/cupid; do
   echo "== $family"
   "$SRC/$family/sync.sh" "$MODE"
   echo
 done
 
-# Standalone skills: any top-level directory containing SKILL.md
+# Standalone skills: any directory containing SKILL.md, at the top level or
+# under a topic dir (topic dirs themselves have no SKILL.md, so they're skipped)
 echo "== standalone skills"
-for dir in "$SRC"/*/; do
+for dir in "$SRC"/*/ "$SRC"/testing/*/ "$SRC"/design/*/; do
   skill="$(basename "$dir")"
   [ -f "$dir/SKILL.md" ] || continue
   for target in "$CLAUDE_SKILLS_DIR" "$TABNINE_SKILLS_DIR"; do
