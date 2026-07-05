@@ -2,6 +2,15 @@
 
 Source of truth for personal agent skills, synced to Claude Code and Tabnine.
 
+```
+ai-skills/
+├── design/     software design guidance (simple-design, software-design-principles,
+│               cupid/, coupling-analysis)
+├── testing/    testing skills (bug-magnet, groovy-spock, junit5, kotest)
+├── notes/      session-notes system
+└── sync.sh     installs everything
+```
+
 ## Install / sync
 
 ```bash
@@ -9,9 +18,11 @@ Source of truth for personal agent skills, synced to Claude Code and Tabnine.
 ./sync.sh link     # symlink instead — edits in this repo apply live
 ```
 
-The root script delegates to the family syncs (`notes/sync.sh`, `cupid/sync.sh`) and then
-installs every standalone top-level skill (any directory with a `SKILL.md`). Override targets
-via `CLAUDE_SKILLS_DIR`, `TABNINE_SKILLS_DIR`, `NOTES_ROOT`.
+The root script delegates to the family syncs (`notes/sync.sh`, `design/cupid/sync.sh`) and
+then installs every standalone skill (any directory with a `SKILL.md`, at the top level or
+under a topic dir). Override targets via `CLAUDE_SKILLS_DIR`, `TABNINE_SKILLS_DIR`,
+`NOTES_ROOT`. Installed skill names are flat — the topic dirs organise the repo, not the
+install targets.
 
 ## Mental model: guidance at altitudes
 
@@ -22,7 +33,7 @@ answers a different question. One meta layer sits above them all and acts as the
 |---|---|---|
 | **Meta — any level** | `simple-design` (Beck's Four Rules) | Is this the simplest design that works? Which guidance wins when they conflict? |
 | Class / method (micro) | `software-design-principles` | Is this code well constructed? |
-| Component / system (macro) | `cupid/properties` + stack skill (`cupid/python`, `cupid/java-spring-boot`) | Is this a good component to live with? |
+| Component / system (macro) | `cupid-properties` + stack skill (`cupid-python`, `cupid-java-spring-boot`) | Is this a good component to live with? |
 | Between components | `coupling-analysis` | Are the dependencies between parts healthy? |
 
 Kent Beck's Four Rules of Simple Design (passes the tests → reveals intention → no
@@ -35,7 +46,7 @@ from different skills conflict in context, resolve with the four rules in priori
 
 - **Writing / refactoring code** — `software-design-principles` is the active checklist;
   `simple-design` decides when to stop (nothing left to remove).
-- **Design or code review** — lead with `cupid/properties` (+ the stack skill for concrete
+- **Design or code review** — lead with `cupid-properties` (+ the stack skill for concrete
   evidence); descend to `software-design-principles` for findings inside specific classes.
 - **Architecture / boundary questions** — `coupling-analysis`, paired with CUPID's
   Composable and Domain-based properties.
@@ -45,18 +56,30 @@ from different skills conflict in context, resolve with the four rules in priori
 
 ## Skills
 
+**Design (`design/`)**
+
 | Skill | Purpose |
 |---|---|
 | `simple-design` | Beck's Four Rules as meta-guidance and tiebreaker |
 | `software-design-principles` | Class/method construction rules (calisthenics, tell-don't-ask, SLAP) |
-| `cupid/` | CUPID properties: generic core + Python and Java/Spring Boot stack skills ([README](cupid/README.md)) |
-| `coupling-analysis` | Khononov coupling model (strength × distance × volatility) |
+| `cupid/` | CUPID properties: generic core + Python and Java/Spring Boot stack skills ([README](design/cupid/README.md)) |
+| `coupling-analysis` | Stub delegating to Khononov's [Modularity plugin](https://github.com/vladikk/modularity) |
+
+**Testing (`testing/`)**
+
+| Skill | Purpose |
+|---|---|
 | `bug-magnet` | Edge-case and bug-discovery prompts for testing |
 | `groovy-spock-testing` | Groovy/Spock test DSL and fixture patterns |
 | `java-junit5-testing` | Java/JUnit 5 BDD-style tests, assertion DSLs, test data builders |
 | `kotlin-kotest-testing` | Kotlin/Kotest specs, matcher DSLs, data-driven testing |
-| `spring-boot-4-gradle-9-upgrade` | Task skill for the Spring Boot 4 / Gradle 9 migration |
+
+**Other**
+
+| Skill | Purpose |
+|---|---|
 | `notes/` | Session-notes system: wrap, ingest, lint ([README](notes/README.md)) |
+| `spring-boot-4-gradle-9-upgrade` | Task skill for the Spring Boot 4 / Gradle 9 migration (top level — task skills may get their own topic dir if more accrue) |
 
 ## Worth including later
 
