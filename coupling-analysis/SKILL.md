@@ -1,163 +1,53 @@
 ---
 name: coupling-analysis
-description: Analyse codebase coupling using Vlad Khononov's framework from "Balancing Coupling in Software Design". Use when asked to analyse coupling, dependencies, modularity, component boundaries, or code architecture quality. Identifies integration strength, distance, and volatility issues. Works with Java/Spring, TypeScript, Python, and other codebases.
+description: Stub that delegates to Vlad Khononov's official Modularity plugin. Use when asked to analyse coupling, dependencies, modularity, component boundaries, or code architecture quality using the Balanced Coupling model (integration strength, distance, volatility). Routes to /modularity:review for existing codebases and /modularity:design for new architectures; includes install instructions if the plugin is missing.
 ---
 
-# Coupling Analysis (Khononov Framework)
+# Coupling Analysis (stub → Khononov's Modularity plugin)
 
-Analyse codebases using Vlad Khononov's three-dimensional coupling model: **Strength**, **Distance**, and **Volatility**.
+This skill is superseded by the author's own Claude Code plugin:
+**[vladikk/modularity](https://github.com/vladikk/modularity)** — Vlad Khononov's official
+implementation of the Balanced Coupling model from *Balancing Coupling in Software Design*.
 
-## Quick Reference
+## What to do when this skill triggers
 
-See `references/khononov-framework.md` for detailed definitions of coupling types and the full theoretical framework.
+1. **If the Modularity plugin's skills are available in this session, use them and stop here:**
+   - `/modularity:review` — analyse an existing codebase for coupling imbalances and
+     knowledge leakage across component boundaries
+   - `/modularity:design` — design a modular architecture from functional requirements,
+     producing module design docs with integration contracts and test specifications
 
-## Analysis Workflow
+2. **If they are not available**, tell the user to install the plugin (Claude Code v1.0.33+):
 
-### 1. Initial Discovery
+   ```
+   /plugin marketplace add vladikk/modularity
+   /plugin install modularity@vladikk-modularity
+   ```
 
-```bash
-# Get project structure overview
-find . -type f \( -name "*.java" -o -name "*.kt" -o -name "*.ts" -o -name "*.py" \) | head -100
+   Or clone and load directly: `claude --plugin-dir ./modularity` after
+   `git clone https://github.com/vladikk/modularity`.
 
-# For Java/Spring projects - find module boundaries
-find . -name "pom.xml" -o -name "build.gradle*" | head -20
+3. **Only if the plugin cannot be installed**, fall back on the model summary below —
+   it is deliberately minimal; the plugin is the real implementation.
 
-# Find package structure
-find . -type d -name "src" -exec find {} -type d \; | grep -E "(domain|service|controller|repository|adapter|port|infrastructure)" | head -30
-```
+## Fallback: the Balanced Coupling model in brief
 
-### 2. Analyse Integration Strength
+Coupling is evaluated across three dimensions:
 
-Examine imports and dependencies to classify coupling strength (from loosest to tightest):
+- **Integration strength** — how much knowledge is shared across the boundary, from
+  weakest to strongest: contract → model → functional → intrusive.
+- **Distance** — how far apart the coupled components are (same class → package →
+  module → service → organisation). Shared knowledge costs more over greater distance.
+- **Volatility** — how often the shared knowledge changes. Stable knowledge neutralises
+  otherwise-costly coupling.
 
-| Level | Type | Indicator | Risk |
-|-------|------|-----------|------|
-| 1 | Signature | Primitive types only | Low |
-| 2 | Contract | Interfaces, DTOs | Low |
-| 3 | Model | Shared domain objects | Medium |
-| 4 | Functional | Behaviour dependencies | High |
-| 5 | Intrusive | Internal access, reflection | Critical |
+**Balance rule:** coupling is balanced when strength and distance counterbalance each other
+(strong coupling only over short distances, only weak contracts over long distances), or when
+volatility is low enough to neutralise the imbalance. Pain = strength × distance × volatility.
 
-**Java patterns to search:**
-```bash
-# Intrusive coupling - reflection, internal access
-grep -rn "\.class\b" --include="*.java" | grep -v "test"
-grep -rn "getDeclaredField\|getDeclaredMethod\|setAccessible" --include="*.java"
+## Composes with
 
-# Model coupling - shared entities across packages
-grep -rn "^import.*\.domain\.\|^import.*\.model\.\|^import.*\.entity\." --include="*.java" | \
-  awk -F: '{print $1}' | sort | uniq -c | sort -rn | head -20
-
-# Contract coupling - interface usage
-grep -rn "^import.*\.api\.\|^import.*\.contract\.\|^import.*\.dto\." --include="*.java"
-```
-
-### 3. Analyse Distance
-
-Distance = how far apart components are architecturally. Coupling across boundaries is costlier.
-
-**Boundary types (increasing distance):**
-1. Same module/package
-2. Same bounded context
-3. Different bounded contexts (same system)
-4. Different systems/services
-
-**Detection patterns:**
-```bash
-# Cross-module dependencies (multi-module projects)
-for pom in $(find . -name "pom.xml" -not -path "*/target/*"); do
-  echo "=== $pom ===" 
-  grep -A2 "<dependency>" "$pom" | grep -E "<(groupId|artifactId)>" | head -20
-done
-
-# Package dependency direction (should flow inward to domain)
-grep -rn "^import" --include="*.java" | \
-  grep -E "(infrastructure|adapter).*import.*(domain|core)" 
-
-# Database access from wrong layers
-grep -rn "@Repository\|@Entity\|JpaRepository" --include="*.java" | grep -v repository
-```
-
-### 4. Analyse Volatility
-
-Volatility = how often the coupled component changes. Coupling to volatile components is riskier.
-
-**Use git history:**
-```bash
-# Most frequently changed files (high volatility)
-git log --pretty=format: --name-only --since="6 months ago" | \
-  grep -E "\.(java|kt|ts|py)$" | sort | uniq -c | sort -rn | head -30
-
-# Files that change together (temporal coupling)
-git log --pretty=format:"%h" --since="6 months ago" | while read commit; do
-  git show --name-only --pretty=format: "$commit" | grep -E "\.(java|kt)$" | sort
-  echo "---"
-done | head -200
-
-# Churn rate by package
-git log --pretty=format: --name-only --since="6 months ago" | \
-  grep -E "\.java$" | sed 's|/[^/]*$||' | sort | uniq -c | sort -rn | head -20
-```
-
-### 5. Identify Anti-Patterns
-
-**Circular dependencies:**
-```bash
-# Use scripts/detect-cycles.py for comprehensive cycle detection
-python3 scripts/detect-cycles.py --path . --lang java
-```
-
-**God classes (high afferent coupling):**
-```bash
-# Classes imported by many others
-grep -rhn "^import" --include="*.java" | \
-  sed 's/.*import \(static \)\?//' | sed 's/;.*//' | \
-  sort | uniq -c | sort -rn | head -20
-```
-
-**Feature envy:**
-```bash
-# Classes calling many methods on other objects
-grep -rn "\.[a-z][a-zA-Z]*\.[a-z][a-zA-Z]*(" --include="*.java" | \
-  awk -F: '{print $1}' | sort | uniq -c | sort -rn | head -20
-```
-
-### 6. Generate Report
-
-Structure findings as:
-
-```markdown
-## Coupling Analysis Report
-
-### Executive Summary
-- Overall coupling health: [Good/Moderate/Concerning/Critical]
-- Key risks identified: [count]
-- Recommended priority actions: [list top 3]
-
-### Findings by Dimension
-
-#### Integration Strength Issues
-[List intrusive/functional coupling violations]
-
-#### Distance Violations  
-[List cross-boundary coupling, especially infrastructure→domain]
-
-#### Volatility Risks
-[List stable components coupled to volatile ones]
-
-### Recommendations
-[Prioritised list with effort/impact assessment]
-```
-
-## Language-Specific Guides
-
-- **Java/Spring**: Primary focus. Use package structure and Spring stereotypes.
-- **TypeScript**: Analyse barrel exports, module boundaries, package.json workspaces.
-- **Python**: Check `__init__.py` exports, relative vs absolute imports.
-
-## Key Principles
-
-1. **Coupling is not inherently bad** — it's about coupling the right things appropriately
-2. **Minimise coupling across boundaries** — especially bounded context boundaries
-3. **Couple to stable abstractions** — interfaces and contracts, not implementations
-4. **Direction matters** — dependencies should point toward stability
+- `cupid-properties` — coupling analysis pairs with the Composable and Domain-based
+  properties at the component/system altitude
+- `simple-design` — rule 3 (no duplication) between components: duplicated knowledge *is*
+  coupling, whatever the imports say
