@@ -14,4 +14,7 @@ Write plainly. Every sentence should state a fact, a decision, or a question. If
 - Sparing em dashes; no manufactured one-line dramatic paragraphs; no "In conclusion".
 - State each fact once, in the most useful place. Don't restate for emphasis.
 
-Full trope list (the reference, don't inline it): [AI Writing Tropes to Avoid](https://gist.github.com/ossa-ma/f3baa9d25154c33095e22272c631f5a1) / [tropes.fyi](https://tropes.fyi)
+The rules above are a note-writing subset of the full trope catalogue, which lives in the
+`tropes` skill (as `tropes.md` in its skill directory; `writing/tropes/tropes.md` in this
+repo — don't inline it here). For prose beyond notes, load that skill. Upstream source:
+[tropes.fyi](https://tropes.fyi) / [gist](https://gist.github.com/ossa-ma/f3baa9d25154c33095e22272c631f5a1).

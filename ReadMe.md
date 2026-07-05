@@ -5,9 +5,9 @@ Source of truth for personal agent skills, synced to Claude Code and Tabnine.
 ```
 ai-skills/
 ├── design/     software design guidance (simple-design, software-design-principles,
-│               cupid/, coupling-analysis)
+│               cupid/, coupling-analysis, validation-review, plan-eng-review)
 ├── testing/    testing skills (bug-magnet, groovy-spock, junit5, kotest)
-├── notes/      session-notes system
+├── writing/    writing skills (notes/ session-notes system, tropes)
 └── sync.sh     installs everything
 ```
 
@@ -18,11 +18,11 @@ ai-skills/
 ./sync.sh link     # symlink instead — edits in this repo apply live
 ```
 
-The root script delegates to the family syncs (`notes/sync.sh`, `design/cupid/sync.sh`) and
-then installs every standalone skill (any directory with a `SKILL.md`, at the top level or
-under a topic dir). Override targets via `CLAUDE_SKILLS_DIR`, `TABNINE_SKILLS_DIR`,
-`NOTES_ROOT`. Installed skill names are flat — the topic dirs organise the repo, not the
-install targets.
+The root script delegates to the family syncs (`writing/notes/sync.sh`,
+`design/cupid/sync.sh`) and then installs every standalone skill (any directory with a
+`SKILL.md`, at the top level or under a topic dir). Override targets via
+`CLAUDE_SKILLS_DIR`, `TABNINE_SKILLS_DIR`, `NOTES_ROOT`. Installed skill names are flat —
+the topic dirs organise the repo, not the install targets.
 
 ## Mental model: guidance at altitudes
 
@@ -76,13 +76,15 @@ from different skills conflict in context, resolve with the four rules in priori
 | `java-junit5-testing` | Java/JUnit 5 BDD-style tests, assertion DSLs, test data builders |
 | `kotlin-kotest-testing` | Kotlin/Kotest specs, matcher DSLs, data-driven testing |
 
+**Writing (`writing/`)**
+
+| Skill | Purpose |
+|---|---|
+| `notes/` | Session-notes system: wrap, ingest, lint ([README](writing/notes/README.md)) |
+| `tropes` | Avoid AI writing tells — wraps the [tropes.fyi](https://tropes.fyi) catalogue |
+
 **Other**
 
 | Skill | Purpose |
 |---|---|
-| `notes/` | Session-notes system: wrap, ingest, lint ([README](notes/README.md)) |
 | `spring-boot-4-gradle-9-upgrade` | Task skill for the Spring Boot 4 / Gradle 9 migration (top level — task skills may get their own topic dir if more accrue) |
-
-## Worth including later
-
-- [Tropes.md](https://gist.github.com/ossa-ma/f3baa9d25154c33095e22272c631f5a1) (for writing)
