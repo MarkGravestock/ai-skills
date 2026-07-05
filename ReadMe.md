@@ -64,6 +64,8 @@ from different skills conflict in context, resolve with the four rules in priori
 | `software-design-principles` | Class/method construction rules (calisthenics, tell-don't-ask, SLAP) |
 | `cupid/` | CUPID properties: generic core + Python and Java/Spring Boot stack skills ([README](design/cupid/README.md)) |
 | `coupling-analysis` | Stub delegating to Khononov's [Modularity plugin](https://github.com/vladikk/modularity) |
+| `validation-review` | Domain model validation review for Java/Spring/DDD (Design by Contract lens) |
+| `plan-eng-review` | Interactive eng-manager-mode plan review before implementation |
 
 **Testing (`testing/`)**
 
