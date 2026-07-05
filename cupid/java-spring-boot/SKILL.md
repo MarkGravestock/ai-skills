@@ -8,7 +8,8 @@ description: Practical CUPID implementation guidance for Java and Spring Boot â€
 Stack-specific implementation guidance. **This skill composes with `cupid-properties`** â€” the
 generic skill defines the five properties, the properties-vs-principles philosophy, the
 caller-combination test, the SOLID critique, the scorecard, and the review lens. Load it first
-(read `../cupid-properties/SKILL.md` if it is not already in context). This file only says what
+if it is not already in context: read `cupid-properties.md` in this skill's directory (a
+synced copy), or `../properties/SKILL.md` in the source repo. This file only says what
 each property looks like *in Java and Spring Boot*, with emphasis on what survives production:
 retry storms, unbounded queues, duplicate processing, missing observability, fragile startup.
 

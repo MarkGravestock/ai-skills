@@ -7,9 +7,10 @@ description: Practical CUPID implementation guidance for Python — concrete idi
 
 Stack-specific implementation guidance. **This skill composes with `cupid-properties`** — the
 generic skill defines the five properties, the properties-vs-principles philosophy, the
-caller-combination test, the scorecard, and the review lens. Load it first (read
-`../cupid-properties/SKILL.md` if it is not already in context). This file only says what each
-property looks like *in Python*.
+caller-combination test, the scorecard, and the review lens. Load it first if it is not
+already in context: read `cupid-properties.md` in this skill's directory (a synced copy), or
+`../properties/SKILL.md` in the source repo. This file only says what each property looks
+like *in Python*.
 
 ---
 
