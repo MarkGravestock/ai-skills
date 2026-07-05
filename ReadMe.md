@@ -53,6 +53,8 @@ from different skills conflict in context, resolve with the four rules in priori
 | `coupling-analysis` | Khononov coupling model (strength × distance × volatility) |
 | `bug-magnet` | Edge-case and bug-discovery prompts for testing |
 | `groovy-spock-testing` | Groovy/Spock test DSL and fixture patterns |
+| `java-junit5-testing` | Java/JUnit 5 BDD-style tests, assertion DSLs, test data builders |
+| `kotlin-kotest-testing` | Kotlin/Kotest specs, matcher DSLs, data-driven testing |
 | `spring-boot-4-gradle-9-upgrade` | Task skill for the Spring Boot 4 / Gradle 9 migration |
 | `notes/` | Session-notes system: wrap, ingest, lint ([README](notes/README.md)) |
 
