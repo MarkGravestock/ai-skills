@@ -36,6 +36,16 @@ This skill wraps the [tropes.fyi](https://tropes.fyi) catalogue by [ossama.is](h
   "framework" for an actual software framework). The catalogue targets decorative use,
   not technical meaning.
 
+## Related
+
+- `plain-idiom` — culture-bound idiom (US sports metaphor, war framing, management-speak),
+  catalogued in that skill's `registers.md`. Different axis, same object: run both on
+  anything going to a wide audience. The two overlap on a handful of words — *leverage*,
+  *robust*, *landscape* are on both lists — but for different reasons, and the swap is the
+  same either way.
+- The `notes` skills carry a note-writing subset of both catalogues in their
+  `writing-style.md`.
+
 ## Keeping the catalogue current
 
 `tropes.md` is a snapshot of the [source gist](https://gist.github.com/ossa-ma/f3baa9d25154c33095e22272c631f5a1)
