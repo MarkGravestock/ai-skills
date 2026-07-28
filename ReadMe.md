@@ -19,7 +19,7 @@ Reasoning and evidence: [docs/approach.md](docs/approach.md).
 ai-skills/
 ├── docs/       approach, guardrails catalogue, dependency/supply-chain gates
 ├── skills/     on-demand skills — design/, testing/, writing/ topic dirs
-└── sync.sh     installs everything
+└── sync.py     installs everything (via uv run poe sync)
 ```
 
 | Path | What |
@@ -41,15 +41,29 @@ ai-skills/
 ## Install / sync
 
 ```bash
-./sync.sh          # copy everything to ~/.claude/skills and ~/.tabnine/agent/skills
-./sync.sh link     # symlink instead — edits in this repo apply live
+uv run poe sync                      # copy everything to ~/.claude/skills and ~/.tabnine/agent/skills
+uv run poe sync-link                 # symlink instead — edits in this repo apply live
+uv run poe sync -- design/cupid      # narrow to one topic or skill dir, recursively
+
+python sync.py [copy|link] [subdir]   # same, without uv/poe — the script is stdlib-only
 ```
 
-The root script delegates to the family syncs (`skills/writing/notes/sync.sh`,
-`skills/design/cupid/sync.sh`) and then installs every standalone skill (any directory
-with a `SKILL.md`, at the top level of `skills/` or under a topic dir). Override targets
-via `CLAUDE_SKILLS_DIR`, `TABNINE_SKILLS_DIR`, `NOTES_ROOT`. Installed skill names are
-flat — the topic dirs organise the repo, not the install targets.
+Pure Python (`sync.py`), so it runs the same way on Windows, macOS and Linux. `uv run poe
+...` is the convenience wrapper; `python sync.py` works anywhere a Python 3.9+ interpreter
+is on `PATH`, uv or not. Symlink mode (`sync-link`) needs Developer Mode enabled on Windows
+(Settings > Privacy & security > For developers) or an elevated shell — unprivileged
+`os.symlink` is blocked otherwise.
+
+One script: it walks `skills/` recursively for any directory containing a `SKILL.md` and
+installs it under the name in that file's `name:` frontmatter (`skills/design/cupid/python/`
+installs as `cupid-python`) — no per-family list of names to maintain. A `subdir` argument
+narrows the walk to one topic or a single skill (`design`, `design/cupid`,
+`design/cupid/python`) instead of installing everything. A couple of skills also need a
+canonical file copied in alongside their `SKILL.md` because an installed skill only ever
+sees its own directory (e.g. the CUPID stack skills need `cupid-properties.md`) — declared
+in `COMPANION_FILES` near the top of `sync.py`. Override install targets via
+`CLAUDE_SKILLS_DIR`, `TABNINE_SKILLS_DIR`, `NOTES_ROOT`. Installed skill names are flat —
+the topic dirs organise the repo, not the install targets.
 
 ## Mental model: guidance at altitudes
 

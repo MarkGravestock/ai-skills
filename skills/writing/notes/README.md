@@ -5,12 +5,17 @@ Source of truth for personal agent skills, synced to Claude Code and Tabnine. Cu
 ## Install / sync
 
 ```bash
-./sync.sh          # copy skills to ~/.claude/skills and ~/.tabnine/agent/skills,
-                   # and tools/notes_tools.py to ~/notes/tools
-./sync.sh link     # symlink instead — edits in this repo apply live
+uv run poe sync -- writing/notes       # copy just the notes skills,
+                                        # and tools/notes_tools.py to ~/notes/tools
+uv run poe sync-link -- writing/notes  # symlink instead — edits in this repo apply live
+
+python sync.py copy writing/notes   # same, without uv/poe (stdlib only)
 ```
 
-Override targets via `CLAUDE_SKILLS_DIR`, `TABNINE_SKILLS_DIR`, `NOTES_ROOT`. Re-run after any skill edit (copy mode). Keep this directory in git.
+Run from the repo root (or omit the subdir to install everything — see the root
+[ReadMe.md](../../../ReadMe.md#install--sync)). Override targets via `CLAUDE_SKILLS_DIR`,
+`TABNINE_SKILLS_DIR`, `NOTES_ROOT`. Re-run after any skill edit (copy mode). Keep this
+directory in git.
 
 ```bash
 cd ~/notes && git init && git add -A && git commit -m "init"
