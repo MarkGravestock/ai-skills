@@ -14,7 +14,23 @@ Write plainly. Every sentence should state a fact, a decision, or a question. If
 - Sparing em dashes; no manufactured one-line dramatic paragraphs; no "In conclusion".
 - State each fact once, in the most useful place. Don't restate for emphasis.
 
-The rules above are a note-writing subset of the full trope catalogue, which lives in the
-`tropes` skill (as `tropes.md` in its skill directory; `writing/tropes/tropes.md` in this
-repo — don't inline it here). For prose beyond notes, load that skill. Upstream source:
-[tropes.fyi](https://tropes.fyi) / [gist](https://gist.github.com/ossa-ma/f3baa9d25154c33095e22272c631f5a1).
+Culture-bound idiom, same principle — a metaphor a reader has to decode is worse than the
+plain word:
+
+- No US sports metaphor: ballpark, touch base, punt on it, home run, full-court press, move
+  the goalposts. Don't swap in cricket or rugby either — they travel no better.
+- No war framing where a plain word exists: "review" or "retro", not "post-mortem";
+  "incident channel", not "war room"; "proven in production", not "battle-tested".
+- Delete on sight: going forward, circle back, reach out, learnings, utilise, socialise (an
+  idea), double-click on that, deep dive, at this moment in time.
+- Technical terms of art stay as they are: `kill -9`, `SIGKILL`, `abort()`, blast radius,
+  smoke test, attack surface. Keep the man-page word; swap the figurative one.
+- Dates unambiguous — `2026-07-04` or `4 July 2026`, never `07/04/2026`.
+
+The rules above are a note-writing subset of two catalogues, neither of which should be
+inlined here. AI writing tells: the `tropes` skill (as `tropes.md` in its skill directory;
+`writing/tropes/tropes.md` in this repo). Culture-bound idiom: the `plain-idiom` skill (as
+`registers.md`; `writing/plain-idiom/registers.md` in this repo). For prose beyond notes,
+load both. Upstream sources: [tropes.fyi](https://tropes.fyi) /
+[gist](https://gist.github.com/ossa-ma/f3baa9d25154c33095e22272c631f5a1) for the tropes;
+Google, Microsoft and GOV.UK style guidance for the idiom registers, listed in registers.md.

@@ -59,6 +59,15 @@ escalate or descend.
 |---|---|
 | `notes/` | Session-notes system: wrap, ingest, lint ([README](writing/notes/README.md)) |
 | `tropes` | Avoid AI writing tells — wraps the [tropes.fyi](https://tropes.fyi) catalogue |
+| `plain-idiom` | Strip culture-bound idiom — US sports metaphor, war framing, management-speak |
+
+`tropes` and `plain-idiom` are peers, not layers: same object (prose), different axis. A
+draft can be trope-free and still read as a US management memo, or plain and still read as
+AI-written, so run both on anything going to a wide audience. Each holds its catalogue as a
+companion file in its own skill directory — `tropes.md` and `registers.md` — and each says
+what the other covers. The `notes/` skills carry a short subset of both in the
+`writing-style.md` generated into them at sync time; canonical source for that subset is
+`writing/notes/references/writing-style.md`.
 
 **Other**
 
