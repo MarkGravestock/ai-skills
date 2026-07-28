@@ -29,7 +29,7 @@ ai-skills/
 | `docs/dependencies.md` | Libraries as guardrails; supply-chain gates |
 | `skills/` | On-demand skills — design, testing, writing (catalogue: [skills/README.md](skills/README.md)) |
 
-## Non-negotiables
+## Rules
 
 - Deterministic tools own everything they can judge. Skills cover only the rest.
 - Auto-fix over review comment; gate over suggestion.
