@@ -19,7 +19,7 @@ Reasoning and evidence: [docs/approach.md](docs/approach.md).
 ai-skills/
 ├── docs/       approach, guardrails catalogue, dependency/supply-chain gates
 ├── skills/     on-demand skills — design/, testing/, writing/ topic dirs
-└── sync.sh     installs everything
+└── sync.py     installs everything (via uv run poe sync)
 ```
 
 | Path | What |
@@ -41,12 +41,20 @@ ai-skills/
 ## Install / sync
 
 ```bash
-./sync.sh          # copy everything to ~/.claude/skills and ~/.tabnine/agent/skills
-./sync.sh link     # symlink instead — edits in this repo apply live
+uv run poe sync         # copy everything to ~/.claude/skills and ~/.tabnine/agent/skills
+uv run poe sync-link    # symlink instead — edits in this repo apply live
+
+python sync.py [copy|link]   # same, without uv/poe — the scripts are stdlib-only
 ```
 
-The root script delegates to the family syncs (`skills/writing/notes/sync.sh`,
-`skills/design/cupid/sync.sh`) and then installs every standalone skill (any directory
+Pure Python (`sync.py`, plus `_synclib.py` and the family scripts), so it runs the same way
+on Windows, macOS and Linux. `uv run poe ...` is the convenience wrapper; `python sync.py`
+works anywhere a Python 3.9+ interpreter is on `PATH`, uv or not. Symlink mode
+(`sync-link`) needs Developer Mode enabled on Windows (Settings > Privacy & security > For
+developers) or an elevated shell — unprivileged `os.symlink` is blocked otherwise.
+
+The root script delegates to the family syncs (`skills/writing/notes/sync.py`,
+`skills/design/cupid/sync.py`) and then installs every standalone skill (any directory
 with a `SKILL.md`, at the top level of `skills/` or under a topic dir). Override targets
 via `CLAUDE_SKILLS_DIR`, `TABNINE_SKILLS_DIR`, `NOTES_ROOT`. Installed skill names are
 flat — the topic dirs organise the repo, not the install targets.

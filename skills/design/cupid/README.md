@@ -9,7 +9,7 @@ cupid/
 ├── properties/        cupid-properties       — the five properties, scorecard, review lens
 ├── python/            cupid-python           — practical Python implementation advice
 ├── java-spring-boot/  cupid-java-spring-boot — practical Java/Spring Boot implementation advice
-└── sync.sh            installs to Claude Code and Tabnine
+└── sync.py            installs to Claude Code and Tabnine
 ```
 
 ## Composition model
@@ -18,12 +18,12 @@ cupid/
   SOLID critique, the caller-combination test, the 0–3 scorecard, the review lens.
 - Each stack skill owns only idioms, libraries, and code patterns for its technology, and
   declares in its frontmatter description that it composes with `cupid-properties`.
-- `sync.sh` copies `properties/SKILL.md` into each stack skill dir as `cupid-properties.md`,
+- `sync.py` copies `properties/SKILL.md` into each stack skill dir as `cupid-properties.md`,
   so a stack skill can load the generic guidance even when the installed skill only sees its
   own directory.
 
 Adding a new stack (e.g. TypeScript): create `typescript/SKILL.md` following the pattern of
-an existing stack skill, add `typescript` to the `SKILLS` array in `sync.sh`, and leave
+an existing stack skill, add `typescript` to the `SKILLS` list in `sync.py`, and leave
 `properties/` untouched.
 
 ## Related skills (different altitudes)
@@ -41,8 +41,10 @@ other altitudes and cross-reference it:
 ## Install / sync
 
 ```bash
-./sync.sh          # copy skills to ~/.claude/skills and ~/.tabnine/agent/skills
-./sync.sh link     # symlink instead — edits in this repo apply live
+uv run poe sync         # copy skills to ~/.claude/skills and ~/.tabnine/agent/skills
+uv run poe sync-link    # symlink instead — edits in this repo apply live
+
+python sync.py [copy|link]   # same, without uv/poe (stdlib only)
 ```
 
 Override targets via `CLAUDE_SKILLS_DIR`, `TABNINE_SKILLS_DIR`. Re-run after any skill edit
