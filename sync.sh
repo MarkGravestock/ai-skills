@@ -20,16 +20,17 @@ CLAUDE_SKILLS_DIR="${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"
 TABNINE_SKILLS_DIR="${TABNINE_SKILLS_DIR:-$HOME/.tabnine/agent/skills}"
 
 # Skill families with their own sync scripts
-for family in writing/notes design/cupid; do
+for family in skills/writing/notes skills/design/cupid; do
   echo "== $family"
   "$SRC/$family/sync.sh" "$MODE"
   echo
 done
 
-# Standalone skills: any directory containing SKILL.md, at the top level or
-# under a topic dir (topic dirs themselves have no SKILL.md, so they're skipped)
+# Standalone skills: any directory containing SKILL.md, at the top level of
+# skills/ or under a topic dir beneath it (topic dirs themselves have no
+# SKILL.md, so they're skipped)
 echo "== standalone skills"
-for dir in "$SRC"/*/ "$SRC"/testing/*/ "$SRC"/design/*/ "$SRC"/writing/*/; do
+for dir in "$SRC"/skills/*/ "$SRC"/skills/testing/*/ "$SRC"/skills/design/*/ "$SRC"/skills/writing/*/; do
   skill="$(basename "$dir")"
   [ -f "$dir/SKILL.md" ] || continue
   for target in "$CLAUDE_SKILLS_DIR" "$TABNINE_SKILLS_DIR"; do
