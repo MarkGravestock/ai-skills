@@ -31,9 +31,11 @@ Every notes file must follow this structure:
 ```markdown
 ---
 type: topic
-scope: [area/domain, e.g. "home-network — dns setup"]
-topics: [comma-separated keywords for discoverability]
+title: [Human-readable title — same as the H1]
+description: [one sentence — what this page covers; shown in the index]
+tags: [comma-separated, keywords, for, discoverability]
 when-to-load: [one sentence — when should a future agent load this file?]
+generated: { by: [actor], at: [ISO 8601 datetime] }
 ---
 
 # [Title]
@@ -59,13 +61,18 @@ when-to-load: [one sentence — when should a future agent load this file?]
 **Rules:**
 
 - TL;DR bullets must be self-contained — a future agent reading only the TL;DR should know whether to load the full file.
-- `when-to-load` is the primary filter for relevance — write it as a trigger condition, not a description.
+- `when-to-load` is the primary filter for relevance — write it as a trigger condition, not a description. `description` says what the page is; `when-to-load` says when to read it.
+- `generated.by` follows the [OKF](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md) actor convention: `claude-code/<model-id>` when this skill writes the page, `human:<id>` for hand-authored content. Update `generated` (both fields) on every meaningful revision.
+- Optional lifecycle keys, only when they apply: `status: draft | stable | deprecated` (absent means stable) and `stale_after: YYYY-MM-DD` for content with a known expiry (version-pinned findings, time-boxed decisions).
 - Do not duplicate TODOs in the notes file — they live only in `todos.md`.
+- Cross-links use relative paths and only point at pages that exist. One link per page mention per section is enough; never link from headings or inside code blocks.
 - Prose style: follow `writing-style.md` (alongside this skill). Plain declarative sentences, specific facts, no AI rhetoric. Structural elements (frontmatter, TL;DR headings, keyed todo bullets) are exempt.
 
 ## todos.md format
 
 File: `~/notes/todos.md`
+
+The file starts with minimal frontmatter (`type: todo-list` between `---` lines) so every non-reserved file in the vault is a valid OKF concept — add it if missing.
 
 Each new TODO entry:
 
