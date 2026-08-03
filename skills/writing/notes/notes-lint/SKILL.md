@@ -13,7 +13,7 @@ Notes root: `~/notes`.
 
 ### 1. Deterministic checks first
 
-Run `python3 ~/notes/tools/notes_tools.py check`. This reports broken internal links and anchors, missing frontmatter fields, and a stale index. Include its output in the report; fix anything it flags where the correct fix is unambiguous (e.g. a heading was renamed — repoint the anchor).
+Run `python3 ~/notes/tools/notes_tools.py check`. This reports broken internal links and anchors, missing frontmatter fields, legacy frontmatter keys (pre-OKF names: `scope`, `topics`, `source`), pages past their `stale_after` date, footnote citations with no matching `sources[].id`, and a stale index. Include its output in the report; fix anything it flags where the correct fix is unambiguous (e.g. a heading was renamed — repoint the anchor; a legacy key — apply the rename it suggests). A page flagged STALE needs a human decision: re-verify and push `stale_after` out, or mark it `status: deprecated`.
 
 ### 2. TODO rot
 
@@ -25,7 +25,7 @@ For pages modified since the last lint, check the TL;DR still matches the body. 
 
 ### 4. Contradictions and stale claims
 
-Scan pages within each area for claims that newer pages (or newer sections) contradict or supersede. Flag each pair; propose which page to revise. Do not revise unilaterally.
+Scan pages within each area for claims that newer pages (or newer sections) contradict or supersede. Flag each pair; propose which page to revise. Do not revise unilaterally. Skip pages marked `status: deprecated` — they are kept for links and history and are expected to disagree with current pages.
 
 ### 5. Near-duplicates
 

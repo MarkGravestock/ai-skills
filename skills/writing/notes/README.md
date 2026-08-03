@@ -37,10 +37,22 @@ Load nothing that doesn't match.
 - End of session: `/wrap` — files the session into topic pages, updates todos.md, rebuilds the index.
 - Found an article/doc worth keeping: `/ingest <url-or-path>` — raw copy to `raw/` (immutable, excluded from index), facts dissolved into topic pages with citations.
 - Monthly-ish: `/lint-notes` — flags rot, drift, duplicates, broken links. Flags only; never deletes.
+- To see the vault as a graph: `python3 ~/notes/tools/notes_tools.py viz` writes `~/notes/viz.html` — an interactive page/link graph (nodes coloured by area, click for the rendered page, search and area filters). Open it in a browser; it loads cytoscape.js and marked from a CDN, mirroring the OKF reference viewer.
 - Commit after wraps (`git add -A && git commit`) — history is your chronological log and your undo.
 
 Note: on Tabnine, typed `/wrap`-style commands need a one-line command file in `.tabnine/agent/commands/`; the natural-language triggers ("wrap up", "ingest this") work without it.
 
 ## Format compatibility
 
-The notes format (markdown + YAML frontmatter with a required `type` field) is deliberately [OKF](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf)-shaped. If the vault ever needs to become a queryable knowledge graph, [Vault-LD Appendix B](https://github.com/The-Knowledge-Graph-Guys/vault-ld/blob/main/SPEC.md) defines the lift: add a root `context.jsonld`, modify no files, promote types and fields incrementally. Deferred deliberately — see the boundary condition: formal semantics pay at multi-author/interop scale, not for a single-author vault with a lint pass.
+The vault is a conformant [OKF v0.2](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md) bundle:
+
+- Every non-reserved `.md` file carries YAML frontmatter with a `type` (`topic`, `source`, `todo-list`); `title`, `description`, and `tags` follow the spec's recommended keys.
+- The generated root `index.md` declares `okf_version: "0.2"` and lists `[Title](path) - description` entries grouped by area.
+- Provenance uses the `sources` family plus footnote citations keyed to `sources[].id`; content origin is stamped as `generated: { by, at }` with the actor convention (`claude-code/<model>`, `human:<id>`).
+- Lifecycle keys `status` and `stale_after` are honoured by the lint pass.
+
+Deliberate divergences, all legal under OKF's tolerate-unknown-keys rule: `when-to-load` and `retrieved` are extension keys; `raw/` plays the role of the spec's `references/` convention but is excluded from the index (raw mirrors are provenance, not concepts to load); there is no `log.md` — git history is the chronological log.
+
+**Migrating an existing vault**: `/lint-notes` (or `notes_tools.py check`) flags the pre-OKF keys — `scope` (drop), `topics` (→ `tags`), `source` (→ `resource`) — and pages missing `description`. The renames are mechanical; write `description` lines as you next touch each page.
+
+If the vault ever needs to become a queryable knowledge graph, [Vault-LD Appendix B](https://github.com/The-Knowledge-Graph-Guys/vault-ld/blob/main/SPEC.md) defines the lift: add a root `context.jsonld`, modify no files, promote types and fields incrementally. Deferred deliberately — see the boundary condition: formal semantics pay at multi-author/interop scale, not for a single-author vault with a lint pass.
