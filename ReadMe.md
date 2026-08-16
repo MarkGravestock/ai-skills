@@ -1,15 +1,26 @@
 # ai-skills
 
-Working practice for agentic development. The approach comes first; skills are one
-part of it, synced to Claude Code and Tabnine.
+Working practice for AI-assisted software delivery. The process comes first:
+a short, iterative loop — walking skeleton, thinnest next slice, always
+releasable, real feedback over up-front planning. The guardrails thesis and
+the skills below exist to keep that loop fast and safe, and are synced to
+Claude Code and Tabnine.
 
-## Thesis
+## Process
+
+Delivery runs as an OODA loop — Observe, Orient, Decide, Act — at the
+smallest grain that produces real signal, not as sequential phases.
+
+Reasoning and evidence: [docs/delivery-process.md](docs/delivery-process.md).
+
+## Thesis (guardrails)
 
 Deterministic guardrails beat prompt volume. Frameworks shipping large prompt
 corpora ("software factories") underperform their marketing; the reproducible
 gain comes from the computational controls they happen to bundle — formatters,
 type checkers, architecture rules, tests — rather than from personas and
-workflow ceremony. Spend on sensors.
+workflow ceremony. Spend on sensors. This is what makes the Act step of the
+loop above fast without being reckless.
 
 Reasoning and evidence: [docs/approach.md](docs/approach.md).
 
@@ -17,14 +28,15 @@ Reasoning and evidence: [docs/approach.md](docs/approach.md).
 
 ```
 ai-skills/
-├── docs/       approach, guardrails catalogue, dependency/supply-chain gates
+├── docs/       delivery process, guardrails approach, dependency/supply-chain gates
 ├── skills/     on-demand skills — design/, testing/, writing/ topic dirs
 └── sync.py     installs everything (via uv run poe sync)
 ```
 
 | Path | What |
 |---|---|
-| `docs/approach.md` | Thesis, control taxonomy, evidence base, known limits |
+| `docs/delivery-process.md` | The OODA loop, walking skeleton, MVP slicing, why short feedback loops |
+| `docs/approach.md` | Guardrails thesis, control taxonomy, evidence base, known limits |
 | `docs/guardrails-catalogue.md` | Guardrails by category and type, Java and Python |
 | `docs/dependencies.md` | Libraries as guardrails; supply-chain gates |
 | `skills/` | On-demand skills — design, testing, writing (catalogue: [skills/README.md](skills/README.md)) |
