@@ -29,6 +29,7 @@ Reasoning and evidence: [docs/approach.md](docs/approach.md).
 ```
 ai-skills/
 ├── docs/       delivery process, guardrails approach, dependency/supply-chain gates
+├── harness/    per-harness configuration — the parts the skills can't carry
 ├── skills/     on-demand skills — design/, testing/, writing/ topic dirs
 └── sync.py     installs everything (via uv run poe sync)
 ```
@@ -39,6 +40,7 @@ ai-skills/
 | `docs/approach.md` | Guardrails thesis, control taxonomy, evidence base, known limits |
 | `docs/guardrails-catalogue.md` | Guardrails by category and type, Java and Python |
 | `docs/dependencies.md` | Libraries as guardrails; supply-chain gates |
+| `harness/` | Harness configuration and the principles behind it — opencode two-tier model setup ([harness/README.md](harness/README.md)) |
 | `skills/` | On-demand skills — design, testing, writing (catalogue: [skills/README.md](skills/README.md)) |
 
 ## Rules
