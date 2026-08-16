@@ -1,0 +1,63 @@
+// ~/.config/opencode/opencode.jsonc
+// Two providers, same endpoint, different keys. The tier boundary is enforced by
+// OpenRouter's per-key model allowlist, not by convention.
+//
+// Model IDs and limits were read off the OpenRouter model pages on the review date in
+// models.md — check there before changing them.
+// Field shapes: https://opencode.ai/v2/docs/models
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  "providers": {
+    "or-cheap": {
+      "name": "OpenRouter (cheap)",
+      "package": "aisdk:@ai-sdk/openai-compatible",
+      "settings": {
+        "baseURL": "https://openrouter.ai/api/v1",
+        "apiKey": "{env:OPENROUTER_CHEAP_KEY}"
+      },
+      "models": {
+        "google/gemini-3-flash-preview": {
+          "name": "Fast tier",
+          "capabilities": {
+            "tools": true,
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 65536
+          }
+        }
+      }
+    },
+
+    "or-heavy": {
+      "name": "OpenRouter (strong)",
+      "package": "aisdk:@ai-sdk/openai-compatible",
+      "settings": {
+        "baseURL": "https://openrouter.ai/api/v1",
+        "apiKey": "{env:OPENROUTER_HEAVY_KEY}"
+      },
+      // `capabilities` has no reasoning flag — reasoning is a request parameter. Pin the
+      // effort with a `reasoningEffort` setting here if the default doesn't suit.
+      "models": {
+        "anthropic/claude-sonnet-5": {
+          "name": "Strong tier",
+          "capabilities": {
+            "tools": true,
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          }
+        }
+      }
+    }
+  },
+
+  // Default agent runs here.
+  "model": "or-heavy/anthropic/claude-sonnet-5"
+}

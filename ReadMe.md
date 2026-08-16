@@ -26,15 +26,17 @@ Reasoning and evidence: [tooling/approach.md](tooling/approach.md).
 
 ## Contents
 
-Two areas, split by how fast they change. `practices/` is what good software
-development looks like, agent or no agent — it should outlast any particular
-harness. `tooling/` is how an agent gets configured to follow it, and churns
-whenever a harness does.
+Two areas, split by half-life. `practices/` is what good software development
+looks like, agent or no agent, and should outlast any particular harness.
+`tooling/` is how an agent gets configured to follow it, and expires whenever a
+harness, model or config schema does — the same line
+[`tooling/harness/README.md`](tooling/harness/README.md) draws in its fourth
+principle.
 
 ```
 ai-development/
 ├── practices/  delivery process, guardrails catalogue, dependency/supply-chain gates
-├── tooling/    the agentic thesis, and the sync that installs skills into harnesses
+├── tooling/    the agentic thesis, per-harness config, and the skill sync
 └── skills/     on-demand skills — design/, testing/, writing/ topic dirs
 ```
 
@@ -50,11 +52,12 @@ tooling's payload; filing it under one side would misrepresent the other.
 | `practices/guardrails-catalogue.md` | Guardrails by category and type, Java and Python |
 | `practices/dependencies.md` | Libraries as guardrails; supply-chain gates |
 
-**Tooling** — agent configuration and install machinery
+**Tooling** — agent configuration and install machinery, expected to expire
 
 | Path | What |
 |---|---|
 | `tooling/approach.md` | Guardrails thesis, control taxonomy, evidence base, known limits |
+| `tooling/harness/` | Harness configuration and the principles behind it — opencode two-tier model setup ([tooling/harness/README.md](tooling/harness/README.md)) |
 | `tooling/sync.py` | Installs skills into Claude Code, Tabnine and opencode (via `uv run poe sync`) |
 
 **Skills** — practice in harness-loadable form
@@ -88,24 +91,30 @@ python tooling/sync.py [copy|link] [subdir]   # same, without uv/poe — stdlib-
 | Tabnine | `~/.tabnine/agent/skills` | `TABNINE_SKILLS_DIR` |
 | opencode | `~/.config/opencode/skills` (`$XDG_CONFIG_HOME/opencode/skills` when set) | `OPENCODE_SKILLS_DIR` |
 
-Pure Python (`tooling/sync.py`), so it runs the same way on Windows, macOS and Linux. `uv run
-poe ...` is the convenience wrapper; `python tooling/sync.py` works anywhere a Python 3.9+ interpreter
-is on `PATH`, uv or not. Symlink mode (`sync-link`) needs Developer Mode enabled on Windows
-(Settings > Privacy & security > For developers) or an elevated shell — unprivileged
-`os.symlink` is blocked otherwise.
+One script, stdlib-only: it walks `skills/` for any directory holding a `SKILL.md` and
+installs it under that file's `name:` frontmatter (`skills/design/cupid/python/` installs as
+`cupid-python`). Names are flat — the topic dirs organise the repo, not the install targets.
 
-One script: it walks `skills/` recursively for any directory containing a `SKILL.md` and
-installs it under the name in that file's `name:` frontmatter (`skills/design/cupid/python/`
-installs as `cupid-python`) — no per-family list of names to maintain. A `subdir` argument
-narrows the walk to one topic or a single skill (`design`, `design/cupid`,
-`design/cupid/python`) instead of installing everything. A couple of skills also need a
-canonical file copied in alongside their `SKILL.md` because an installed skill only ever
-sees its own directory (e.g. the CUPID stack skills need `cupid-properties.md`) — declared
-in `COMPANION_FILES` near the top of `tooling/sync.py`. The notes tooling target is overridable via
-`NOTES_ROOT`. Installed skill names are flat — the topic dirs organise the repo, not the
-install targets.
+<details>
+<summary>How the sync works — narrowing, companion files, symlink mode</summary>
 
-### opencode
+Pure Python, so it behaves the same on Windows, macOS and Linux; `uv run poe ...` is only a
+wrapper over `python tooling/sync.py`, which needs nothing but a Python 3.9+ interpreter on `PATH`. A
+`subdir` argument narrows the walk to one topic or a single skill (`design`, `design/cupid`,
+`design/cupid/python`).
+
+A few skills need a canonical file copied in beside their `SKILL.md`, because an installed
+skill only ever sees its own directory — the CUPID stack skills need `cupid-properties.md`.
+Declared in `COMPANION_FILES` near the top of `tooling/sync.py`. The notes tooling target is
+overridable via `NOTES_ROOT`.
+
+Symlink mode (`sync-link`) needs Developer Mode on Windows (Settings > Privacy & security >
+For developers) or an elevated shell — unprivileged `os.symlink` is blocked otherwise.
+
+</details>
+
+<details>
+<summary>opencode — verifying an install, and the duplicate-skill warning</summary>
 
 opencode has no CLI for installing skills (`opencode --help` covers agents, plugins and MCP
 servers, not skills), so the sync writes directories like the other two targets. It scans
@@ -113,13 +122,14 @@ servers, not skills), so the sync writes directories like the other two targets.
 than the directory name — the same convention `tooling/sync.py` already uses. Verify an install with
 `opencode debug skill`, which lists every skill it can see and where each was loaded from.
 
-Worth knowing: opencode also reads `~/.claude/skills/**/SKILL.md` and `~/.agents/skills`
-by default, so anything synced for Claude Code already reaches opencode. Installing to both
-means each skill is found twice and opencode logs a `duplicate skill name` warning; the
-content is identical, so this is noise rather than breakage. Set
-`OPENCODE_DISABLE_CLAUDE_CODE` to stop it reading the Claude directory, or
-`OPENCODE_DISABLE_EXTERNAL_SKILLS` to stop both external directories, if the warnings
-bother you.
+opencode also reads `~/.claude/skills/**/SKILL.md` and `~/.agents/skills` by default, so
+anything synced for Claude Code already reaches it. Installing to both means each skill is
+found twice and opencode logs a `duplicate skill name` warning; the content is identical, so
+this is noise rather than breakage. Set `OPENCODE_DISABLE_CLAUDE_CODE` to stop it reading the
+Claude directory, or `OPENCODE_DISABLE_EXTERNAL_SKILLS` to stop both, if the warnings bother
+you.
+
+</details>
 
 ## Skills
 
