@@ -1,4 +1,4 @@
-# ai-skills
+# ai-development
 
 Working practice for AI-assisted software delivery. The process comes first:
 a short, iterative loop — walking skeleton, thinnest next slice, always
