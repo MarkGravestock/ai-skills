@@ -14,12 +14,12 @@ Usage:
     uv run poe sync                    # copy every skill (default)
     uv run poe sync-link               # symlink every skill instead
 
-    python sync.py [copy|link] [SUBDIR]
+    python tooling/sync.py [copy|link] [SUBDIR]
 
     SUBDIR narrows the install to one topic or skill, relative to skills/:
-        python sync.py copy design
-        python sync.py link design/cupid
-        python sync.py design/cupid       # mode defaults to copy
+        python tooling/sync.py copy design
+        python tooling/sync.py link design/cupid
+        python tooling/sync.py design/cupid       # mode defaults to copy
 
 Overridable via env: CLAUDE_SKILLS_DIR, TABNINE_SKILLS_DIR, OPENCODE_SKILLS_DIR,
 NOTES_ROOT
@@ -33,7 +33,7 @@ import shutil
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent
+REPO_ROOT = Path(__file__).resolve().parent.parent
 SKILLS_ROOT = REPO_ROOT / "skills"
 NOTES_DIR = SKILLS_ROOT / "writing" / "notes"
 NAME_RE = re.compile(r"^name:\s*(\S+)\s*$", re.MULTILINE)

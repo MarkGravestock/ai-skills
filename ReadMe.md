@@ -11,7 +11,7 @@ Claude Code, Tabnine and opencode.
 Delivery runs as an OODA loop — Observe, Orient, Decide, Act — at the
 smallest grain that produces real signal, not as sequential phases.
 
-Reasoning and evidence: [docs/delivery-process.md](docs/delivery-process.md).
+Reasoning and evidence: [practices/delivery-process.md](practices/delivery-process.md).
 
 ## Thesis (guardrails)
 
@@ -22,23 +22,45 @@ type checkers, architecture rules, tests — rather than from personas and
 workflow ceremony. Spend on sensors. This is what makes the Act step of the
 loop above fast without being reckless.
 
-Reasoning and evidence: [docs/approach.md](docs/approach.md).
+Reasoning and evidence: [tooling/approach.md](tooling/approach.md).
 
 ## Contents
 
+Two areas, split by how fast they change. `practices/` is what good software
+development looks like, agent or no agent — it should outlast any particular
+harness. `tooling/` is how an agent gets configured to follow it, and churns
+whenever a harness does.
+
 ```
-ai-skills/
-├── docs/       delivery process, guardrails approach, dependency/supply-chain gates
-├── skills/     on-demand skills — design/, testing/, writing/ topic dirs
-└── sync.py     installs everything (via uv run poe sync)
+ai-development/
+├── practices/  delivery process, guardrails catalogue, dependency/supply-chain gates
+├── tooling/    the agentic thesis, and the sync that installs skills into harnesses
+└── skills/     on-demand skills — design/, testing/, writing/ topic dirs
 ```
+
+`skills/` sits between the two rather than inside either. A skill is a practice
+written in the format a harness can load, so it is the practices expressed as
+tooling's payload; filing it under one side would misrepresent the other.
+
+**Practices** — durable, harness-independent
 
 | Path | What |
 |---|---|
-| `docs/delivery-process.md` | The OODA loop, walking skeleton, MVP slicing, why short feedback loops |
-| `docs/approach.md` | Guardrails thesis, control taxonomy, evidence base, known limits |
-| `docs/guardrails-catalogue.md` | Guardrails by category and type, Java and Python |
-| `docs/dependencies.md` | Libraries as guardrails; supply-chain gates |
+| `practices/delivery-process.md` | The OODA loop, walking skeleton, MVP slicing, why short feedback loops |
+| `practices/guardrails-catalogue.md` | Guardrails by category and type, Java and Python |
+| `practices/dependencies.md` | Libraries as guardrails; supply-chain gates |
+
+**Tooling** — agent configuration and install machinery
+
+| Path | What |
+|---|---|
+| `tooling/approach.md` | Guardrails thesis, control taxonomy, evidence base, known limits |
+| `tooling/sync.py` | Installs skills into Claude Code, Tabnine and opencode (via `uv run poe sync`) |
+
+**Skills** — practice in harness-loadable form
+
+| Path | What |
+|---|---|
 | `skills/` | On-demand skills — design, testing, writing (catalogue: [skills/README.md](skills/README.md)) |
 
 ## Rules
@@ -57,7 +79,7 @@ uv run poe sync                      # copy everything to every target below
 uv run poe sync-link                 # symlink instead — edits in this repo apply live
 uv run poe sync -- design/cupid      # narrow to one topic or skill dir, recursively
 
-python sync.py [copy|link] [subdir]   # same, without uv/poe — the script is stdlib-only
+python tooling/sync.py [copy|link] [subdir]   # same, without uv/poe — stdlib-only
 ```
 
 | Harness | Install target | Override |
@@ -66,8 +88,8 @@ python sync.py [copy|link] [subdir]   # same, without uv/poe — the script is s
 | Tabnine | `~/.tabnine/agent/skills` | `TABNINE_SKILLS_DIR` |
 | opencode | `~/.config/opencode/skills` (`$XDG_CONFIG_HOME/opencode/skills` when set) | `OPENCODE_SKILLS_DIR` |
 
-Pure Python (`sync.py`), so it runs the same way on Windows, macOS and Linux. `uv run poe
-...` is the convenience wrapper; `python sync.py` works anywhere a Python 3.9+ interpreter
+Pure Python (`tooling/sync.py`), so it runs the same way on Windows, macOS and Linux. `uv run
+poe ...` is the convenience wrapper; `python tooling/sync.py` works anywhere a Python 3.9+ interpreter
 is on `PATH`, uv or not. Symlink mode (`sync-link`) needs Developer Mode enabled on Windows
 (Settings > Privacy & security > For developers) or an elevated shell — unprivileged
 `os.symlink` is blocked otherwise.
@@ -79,7 +101,7 @@ narrows the walk to one topic or a single skill (`design`, `design/cupid`,
 `design/cupid/python`) instead of installing everything. A couple of skills also need a
 canonical file copied in alongside their `SKILL.md` because an installed skill only ever
 sees its own directory (e.g. the CUPID stack skills need `cupid-properties.md`) — declared
-in `COMPANION_FILES` near the top of `sync.py`. The notes tooling target is overridable via
+in `COMPANION_FILES` near the top of `tooling/sync.py`. The notes tooling target is overridable via
 `NOTES_ROOT`. Installed skill names are flat — the topic dirs organise the repo, not the
 install targets.
 
@@ -88,7 +110,7 @@ install targets.
 opencode has no CLI for installing skills (`opencode --help` covers agents, plugins and MCP
 servers, not skills), so the sync writes directories like the other two targets. It scans
 `{skill,skills}/**/SKILL.md` under its config dir, keyed on the `name:` frontmatter rather
-than the directory name — the same convention `sync.py` already uses. Verify an install with
+than the directory name — the same convention `tooling/sync.py` already uses. Verify an install with
 `opencode debug skill`, which lists every skill it can see and where each was loaded from.
 
 Worth knowing: opencode also reads `~/.claude/skills/**/SKILL.md` and `~/.agents/skills`

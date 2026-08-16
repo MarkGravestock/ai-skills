@@ -13,7 +13,7 @@ real signal.
 - **Decide** — pick the next slice: the thinnest vertical cut that proves or
   disproves the next assumption, not the next technically tidy unit of work.
 - **Act** — build it, guarded by the deterministic controls in
-  [approach.md](approach.md), and leave the system releasable when you stop.
+  [approach.md](../tooling/approach.md), and leave the system releasable when you stop.
 
 Short-circuiting the loop anywhere is the usual failure mode: skipping
 Observe (shipping without checking it works), skipping Orient (treating a
@@ -32,7 +32,7 @@ below.
 
 ## Why OODA over phase gates
 
-The evidence in [approach.md](approach.md) already points here from a
+The evidence in [approach.md](../tooling/approach.md) already points here from a
 different angle: a full multi-phase spec workflow bought +0.05 on a 5-point
 composite for ~70% more wall-clock time, while deterministic hooks bought
 roughly three times that gain for a fraction of the cost. Read as a delivery
@@ -116,7 +116,7 @@ pace.
 
 ## Consequences for this repo
 
-- This doc is the "what loop are we running" answer; [approach.md](approach.md)
+- This doc is the "what loop are we running" answer; [approach.md](../tooling/approach.md)
   is "how do we make Act fast and safe" underneath it. Skills are tools
   invoked inside Act, and they don't own the loop; they shouldn't grow
   ceremony that competes with it.
