@@ -19,15 +19,12 @@ every altitude, and each altitude skill is an elaboration of them at one level. 
 from different skills conflict in context, resolve with the four rules in priority order;
 `simple-design/SKILL.md` maps each rule to its expression at each altitude.
 
-Day to day: writing or refactoring code makes `software-design-principles` the
-active checklist, with `simple-design` deciding when to stop (nothing left to
-remove). For design or code review, lead with `cupid-properties` (plus the
-stack skill for concrete evidence), then descend to
-`software-design-principles` for findings inside specific classes.
-Architecture and boundary questions route to `coupling-analysis`, paired with
-CUPID's Composable and Domain-based properties. Don't load every skill for
-every task — the frontmatter descriptions encode the altitudes so agents
-route to the right one, and each skill's composition section says when to
+Routing: writing or refactoring runs `software-design-principles` as the active
+checklist, with `simple-design` deciding when to stop. Review leads with
+`cupid-properties` (plus the stack skill for concrete evidence), then descends to
+`software-design-principles` for findings inside specific classes. Boundary
+questions go to `coupling-analysis`. Don't load every skill for every task — the
+frontmatter descriptions encode the altitudes, and each skill says when to
 escalate or descend.
 
 ## Skills
@@ -63,10 +60,9 @@ escalate or descend.
 
 `tropes` and `plain-idiom` are peers, not layers: same object (prose), different axis. A
 draft can be trope-free and still read as a US management memo, or plain and still read as
-AI-written, so run both on anything going to a wide audience. Each holds its catalogue as a
-companion file in its own skill directory — `tropes.md` and `registers.md` — and each says
-what the other covers. The `notes/` skills carry a short subset of both in the
-`writing-style.md` generated into them at sync time; canonical source for that subset is
+AI-written, so run both on anything going to a wide audience. Catalogues live beside each
+skill (`tropes.md`, `registers.md`); the `notes/` skills carry a subset via the
+`writing-style.md` generated at sync time from
 `writing/notes/references/writing-style.md`.
 
 **Other**
