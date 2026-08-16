@@ -9,7 +9,7 @@ uv run poe sync -- writing/notes       # copy just the notes skills,
                                         # and tools/notes_tools.py to ~/notes/tools
 uv run poe sync-link -- writing/notes  # symlink instead — edits in this repo apply live
 
-python sync.py copy writing/notes   # same, without uv/poe (stdlib only)
+python tooling/sync.py copy writing/notes   # same, without uv/poe (stdlib only)
 ```
 
 Run from the repo root (or omit the subdir to install everything — see the root

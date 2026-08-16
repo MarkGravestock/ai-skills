@@ -1,7 +1,7 @@
 [project]
-name = "ai-skills"
+name = "ai-development"
 version = "0.1.0"
-description = "Sync tooling for the ai-skills repo"
+description = "Sync tooling for the ai-development repo"
 requires-python = ">=3.9"
 dependencies = []
 
@@ -12,9 +12,9 @@ dev = ["poethepoet>=0.29"]
 package = false
 
 [tool.poe.tasks.sync]
-cmd = "python sync.py copy"
-help = "Copy skills to Claude Code and Tabnine skill locations"
+cmd = "python tooling/sync.py copy"
+help = "Copy skills to Claude Code, Tabnine and opencode skill locations"
 
 [tool.poe.tasks.sync-link]
-cmd = "python sync.py link"
+cmd = "python tooling/sync.py link"
 help = "Symlink skills instead of copying - edits in this repo apply live"

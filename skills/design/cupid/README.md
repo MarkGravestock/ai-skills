@@ -11,7 +11,7 @@ cupid/
 └── java-spring-boot/  cupid-java-spring-boot — practical Java/Spring Boot implementation advice
 ```
 
-Installed by the repo-root `sync.py` — see [Install / sync](#install--sync) below.
+Installed by `tooling/sync.py` — see [Install / sync](#install--sync) below.
 
 ## Composition model
 
@@ -19,13 +19,13 @@ Installed by the repo-root `sync.py` — see [Install / sync](#install--sync) be
   SOLID critique, the caller-combination test, the 0–3 scorecard, the review lens.
 - Each stack skill owns only idioms, libraries, and code patterns for its technology, and
   declares in its frontmatter description that it composes with `cupid-properties`.
-- The root `sync.py` copies `properties/SKILL.md` into each stack skill dir as
+- `tooling/sync.py` copies `properties/SKILL.md` into each stack skill dir as
   `cupid-properties.md` (see `COMPANION_FILES` there), so a stack skill can load the generic
   guidance even when the installed skill only sees its own directory.
 
 Adding a new stack (e.g. TypeScript): create `typescript/SKILL.md` following the pattern of
 an existing stack skill — its `name:` frontmatter is what it installs as, so no separate
-list to update — and add it to `COMPANION_FILES` in `sync.py` if it needs the properties
+list to update — and add it to `COMPANION_FILES` in `tooling/sync.py` if it needs the properties
 doc too.
 
 ## Related skills (different altitudes)
@@ -46,7 +46,7 @@ other altitudes and cross-reference it:
 uv run poe sync -- design/cupid       # copy just the CUPID skills
 uv run poe sync-link -- design/cupid  # symlink instead — edits in this repo apply live
 
-python sync.py copy design/cupid   # same, without uv/poe (stdlib only)
+python tooling/sync.py copy design/cupid   # same, without uv/poe (stdlib only)
 ```
 
 Run from the repo root (or omit the subdir to install everything — see the root

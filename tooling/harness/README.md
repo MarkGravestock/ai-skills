@@ -6,7 +6,7 @@ across harnesses; this section covers the parts that aren't.
 Current harnesses: Claude Code (personal), opencode (work).
 
 Skill installation is a separate concern and lives in the root
-[ReadMe](../ReadMe.md#install--sync) — `sync.py` already installs to all three. This section
+[ReadMe](../../ReadMe.md#install--sync) — `tooling/sync.py` already installs to all three. This section
 is about everything else: models, providers, agents, spend.
 
 ## Principles
