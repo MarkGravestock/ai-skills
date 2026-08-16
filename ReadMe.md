@@ -4,7 +4,7 @@ Working practice for AI-assisted software delivery. The process comes first:
 a short, iterative loop — walking skeleton, thinnest next slice, always
 releasable, real feedback over up-front planning. The guardrails thesis and
 the skills below exist to keep that loop fast and safe, and are synced to
-Claude Code and Tabnine.
+Claude Code, Tabnine and opencode.
 
 ## Process
 
@@ -53,12 +53,18 @@ ai-skills/
 ## Install / sync
 
 ```bash
-uv run poe sync                      # copy everything to ~/.claude/skills and ~/.tabnine/agent/skills
+uv run poe sync                      # copy everything to every target below
 uv run poe sync-link                 # symlink instead — edits in this repo apply live
 uv run poe sync -- design/cupid      # narrow to one topic or skill dir, recursively
 
 python sync.py [copy|link] [subdir]   # same, without uv/poe — the script is stdlib-only
 ```
+
+| Harness | Install target | Override |
+|---|---|---|
+| Claude Code | `~/.claude/skills` | `CLAUDE_SKILLS_DIR` |
+| Tabnine | `~/.tabnine/agent/skills` | `TABNINE_SKILLS_DIR` |
+| opencode | `~/.config/opencode/skills` (`$XDG_CONFIG_HOME/opencode/skills` when set) | `OPENCODE_SKILLS_DIR` |
 
 Pure Python (`sync.py`), so it runs the same way on Windows, macOS and Linux. `uv run poe
 ...` is the convenience wrapper; `python sync.py` works anywhere a Python 3.9+ interpreter
@@ -73,9 +79,25 @@ narrows the walk to one topic or a single skill (`design`, `design/cupid`,
 `design/cupid/python`) instead of installing everything. A couple of skills also need a
 canonical file copied in alongside their `SKILL.md` because an installed skill only ever
 sees its own directory (e.g. the CUPID stack skills need `cupid-properties.md`) — declared
-in `COMPANION_FILES` near the top of `sync.py`. Override install targets via
-`CLAUDE_SKILLS_DIR`, `TABNINE_SKILLS_DIR`, `NOTES_ROOT`. Installed skill names are flat —
-the topic dirs organise the repo, not the install targets.
+in `COMPANION_FILES` near the top of `sync.py`. The notes tooling target is overridable via
+`NOTES_ROOT`. Installed skill names are flat — the topic dirs organise the repo, not the
+install targets.
+
+### opencode
+
+opencode has no CLI for installing skills (`opencode --help` covers agents, plugins and MCP
+servers, not skills), so the sync writes directories like the other two targets. It scans
+`{skill,skills}/**/SKILL.md` under its config dir, keyed on the `name:` frontmatter rather
+than the directory name — the same convention `sync.py` already uses. Verify an install with
+`opencode debug skill`, which lists every skill it can see and where each was loaded from.
+
+Worth knowing: opencode also reads `~/.claude/skills/**/SKILL.md` and `~/.agents/skills`
+by default, so anything synced for Claude Code already reaches opencode. Installing to both
+means each skill is found twice and opencode logs a `duplicate skill name` warning; the
+content is identical, so this is noise rather than breakage. Set
+`OPENCODE_DISABLE_CLAUDE_CODE` to stop it reading the Claude directory, or
+`OPENCODE_DISABLE_EXTERNAL_SKILLS` to stop both external directories, if the warnings
+bother you.
 
 ## Skills
 

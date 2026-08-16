@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install skills from this repo to Claude Code and Tabnine skill locations.
+"""Install skills from this repo to Claude Code, Tabnine and opencode locations.
 
 Every directory under skills/ containing a SKILL.md is installed under the
 name given by that file's `name:` frontmatter field (e.g. skills/design/cupid/
@@ -21,7 +21,8 @@ Usage:
         python sync.py link design/cupid
         python sync.py design/cupid       # mode defaults to copy
 
-Overridable via env: CLAUDE_SKILLS_DIR, TABNINE_SKILLS_DIR, NOTES_ROOT
+Overridable via env: CLAUDE_SKILLS_DIR, TABNINE_SKILLS_DIR, OPENCODE_SKILLS_DIR,
+NOTES_ROOT
 """
 
 from __future__ import annotations
@@ -59,11 +60,20 @@ COMPANION_FILES = [
 ]
 
 
+def opencode_default() -> Path:
+    # opencode reads its global config from XDG_CONFIG_HOME when that is set,
+    # falling back to ~/.config, and scans {skill,skills}/**/SKILL.md under it.
+    xdg = os.environ.get("XDG_CONFIG_HOME")
+    base = Path(xdg) if xdg else Path.home() / ".config"
+    return base / "opencode" / "skills"
+
+
 def targets() -> list[Path]:
     home = Path.home()
     return [
         Path(os.environ.get("CLAUDE_SKILLS_DIR", home / ".claude" / "skills")),
         Path(os.environ.get("TABNINE_SKILLS_DIR", home / ".tabnine" / "agent" / "skills")),
+        Path(os.environ.get("OPENCODE_SKILLS_DIR", opencode_default())),
     ]
 
 
@@ -166,6 +176,7 @@ def main(argv: list[str]) -> int:
     print("Done. Reload to pick up changes:")
     print("  Claude Code: restart session (or /skills if available)")
     print("  Tabnine CLI: /skills reload")
+    print("  opencode:    restart session; verify with `opencode debug skill`")
     return 0
 
 
