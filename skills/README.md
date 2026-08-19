@@ -1,5 +1,15 @@
 # Skills
 
+## Two phases
+
+`analysis/` serves **Orient** — understanding a problem before committing to a solution.
+`design/` and `testing/` serve **Act** — building the thing well. The handover is concrete:
+analysis yields a ubiquitous language, bounded contexts and key examples, which are exactly
+what `naming`, `coupling-analysis` and the testing skills consume.
+
+Reaching for a design skill while the problem is still unclear is the common mistake, and it
+produces a beautifully constructed answer to the wrong question.
+
 ## Mental model: guidance at altitudes
 
 The design skills are complementary because each operates at a different **altitude** and
@@ -28,6 +38,12 @@ frontmatter descriptions encode the altitudes, and each skill says when to
 escalate or descend.
 
 ## Skills
+
+**Analysis (`analysis/`)**
+
+| Skill | Purpose |
+|---|---|
+| `problem-lenses` | Seven problem-analysis lenses — impact mapping, Wardley mapping, spec by example, domain storytelling, event storming, DDD, systems thinking. Routes by the question you're stuck on |
 
 **Design (`design/`)**
 
