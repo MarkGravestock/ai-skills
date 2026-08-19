@@ -26,45 +26,33 @@ Reasoning and evidence: [tooling/approach.md](tooling/approach.md).
 
 ## Contents
 
-Two areas, split by half-life. `practices/` is what good software development
-looks like, agent or no agent, and should outlast any particular harness.
-`tooling/` is how an agent gets configured to follow it, and expires whenever a
-harness, model or config schema does — the same line
-[`tooling/harness/README.md`](tooling/harness/README.md) draws in its fourth
-principle.
+Three areas, ordered by half-life.
 
 ```
 ai-development/
-├── practices/  delivery process, guardrails catalogue, dependency/supply-chain gates
-├── tooling/    the agentic thesis, per-harness config, and the skill sync
-└── skills/     on-demand skills — design/, testing/, writing/ topic dirs
+├── practices/  what good development is — durable, agent or no agent
+├── skills/     that knowledge in the form an agent loads on demand
+└── tooling/    what installs it and configures the harness — expires fastest
 ```
 
-`skills/` sits between the two rather than inside either. A skill is a practice
-written in the format a harness can load, so it is the practices expressed as
-tooling's payload; filing it under one side would misrepresent the other.
-
-**Practices** — durable, harness-independent
+`skills/` is its own category, not a subdirectory of either. A skill is a durable
+body in a perishable envelope: if the `SKILL.md` format died tomorrow you would
+rewrite four lines of frontmatter and keep every word of Beck, North and
+Khononov underneath. `tooling/harness/opencode/models.md` is the opposite —
+perishable all the way through, which is what earns it a place there. That is
+the same fourth principle
+[`tooling/harness/README.md`](tooling/harness/README.md) already states:
+investment proportionate to half-life.
 
 | Path | What |
 |---|---|
 | `practices/delivery-process.md` | The OODA loop, walking skeleton, MVP slicing, why short feedback loops |
 | `practices/guardrails-catalogue.md` | Guardrails by category and type, Java and Python |
 | `practices/dependencies.md` | Libraries as guardrails; supply-chain gates |
-
-**Tooling** — agent configuration and install machinery, expected to expire
-
-| Path | What |
-|---|---|
+| `skills/` | On-demand skills — design, testing, writing (catalogue: [skills/README.md](skills/README.md)) |
 | `tooling/approach.md` | Guardrails thesis, control taxonomy, evidence base, known limits |
 | `tooling/harness/` | Harness configuration and the principles behind it — opencode two-tier model setup ([tooling/harness/README.md](tooling/harness/README.md)) |
 | `tooling/sync.py` | Installs skills into Claude Code, Tabnine and opencode (via `uv run poe sync`) |
-
-**Skills** — practice in harness-loadable form
-
-| Path | What |
-|---|---|
-| `skills/` | On-demand skills — design, testing, writing (catalogue: [skills/README.md](skills/README.md)) |
 
 ## Rules
 
@@ -74,6 +62,9 @@ tooling's payload; filing it under one side would misrepresent the other.
 - Never weaken a quality check to reach green.
 - Harness-agnostic where possible. The gauntlet survives a harness swap; a
   prompt corpus does not.
+- Spend words on the example, not the exposition. "Agents readily produce tests
+  that assert nothing, and only PIT or mutmut will notice" carries a paragraph
+  of description about mutation testing.
 
 ## Install / sync
 
